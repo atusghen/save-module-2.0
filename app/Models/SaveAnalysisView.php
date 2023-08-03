@@ -10,7 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class SavePlantView extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable;
 
 
     protected $connection = "";

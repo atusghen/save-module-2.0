@@ -19,16 +19,17 @@ class SaveToolController extends Controller
 
     public function readView(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
+        $data["plants"] = SaveToolController::getPlants(3);
+        dd($data["plants"]);
         return view("savetool")->with('data', $data);
     }
 
-    private static function getTest($user_id){
+    private static function getPlants($user_id){
         $result = [
             "success" => true,
             "data" => []
         ];
 
-        $user_id = Auth::user()->id;
         $plants = SavePlant::where("user_id",$user_id)->get();
         if ($plants) {
             $result["data"] = $plants->toArray();
