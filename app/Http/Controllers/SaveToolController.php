@@ -17,11 +17,18 @@ use Illuminate\Support\Facades\Validator;
 class SaveToolController extends Controller
 {
 
-    public function readView(Request $request, $id_crypted = null){
+    public function readHasView(Request $request, $id_crypted = null){
+        $data["fields"] = config("save");
+        $data["has"] = SaveToolController::getHas(3);
+        dd($data["has"]);
+        return view("has")->with('data', $data);
+    }
+
+    public function readPlantsView(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
         $data["plants"] = SaveToolController::getPlants(3);
         dd($data["plants"]);
-        return view("savetool")->with('data', $data);
+        return view("plants")->with('data', $data);
     }
 
     private static function getPlants($user_id){
@@ -38,6 +45,19 @@ class SaveToolController extends Controller
         return $result;
     }
 
+    private static function getHas($user_id){
+        $result = [
+            "success" => true,
+            "data" => []
+        ];
+
+        $has = SaveHA::where("user_id",$user_id)->get();
+        if ($has) {
+            $result["data"] = $has->toArray();
+        }
+
+        return $result;
+    }
 
 
 }

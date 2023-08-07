@@ -18,4 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('savetool', [SaveToolController::class, 'readView'])->name('savetool_read_view');
+Route::get('plants', [SaveToolController::class, 'readPlantsView'])->name('savetool_read_view_plants');
+Route::get('has', [SaveToolController::class, 'readHasView'])->name('savetool_read_view_has');
