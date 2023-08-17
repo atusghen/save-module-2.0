@@ -8,6 +8,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * Definisce la tabella delle Homogeneous Area, sia TO-BE che ASIS
+ */
+
 class SaveHA extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
