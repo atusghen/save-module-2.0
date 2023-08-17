@@ -20,9 +20,10 @@ class SaveToolController extends Controller
     public function try(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
         $data["try"] = SaveToolController::getClustersByHaId(1);
-        $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["try"]["clusters"], 10);
+        $enegyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
+        $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["try"]["clusters"], $enegyCost["energy_unit_cost"]);
         dd($result);
-        return view("has")->with('data',$result);
+        return view("tryCalculate")->with('data',$result);
     }
 
     public function readHasView(Request $request, $id_crypted = null){

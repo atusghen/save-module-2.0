@@ -15,11 +15,11 @@ class CalculateController extends Controller
 
         $spesaEnergeticaHa = 0;
 
-        for ($i = 0; $i < count($result["clusters"]); $i++) {
-            $cluster = $result["clusters"][$i];
+        for ($i = 0; $i < count($result); $i++) {
+            $cluster = $result[$i];
 
-            $spesaEnergetica = ($cluster->hours_full_lighting + (1 - ($cluster->dimmering / 100)) * $cluster->hours_dimmer_lighting) * $cluster->lamp_num
-                * $cluster->average_device_power * ($costo_unitario / 1000);
+            $spesaEnergetica = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["lamp_num"]
+                * $cluster["average_device_power"] * ($costo_unitario / 1000);
 
             $spesaEnergeticaHa += $spesaEnergetica;
         }
