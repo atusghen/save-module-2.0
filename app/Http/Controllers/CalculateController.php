@@ -19,7 +19,7 @@ class CalculateController extends Controller
             $cluster = $result[$i];
 
             $spesaEnergetica = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["lamp_num"]
-                * $cluster["average_device_power"] * ($costo_unitario / 1000);
+                * $cluster["average_device_power"] * ((float)$costo_unitario[0] / 1000);
 
             $spesaEnergeticaHa += $spesaEnergetica;
         }

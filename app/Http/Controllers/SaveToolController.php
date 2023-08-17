@@ -20,8 +20,8 @@ class SaveToolController extends Controller
     public function try(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
         $data["try"] = SaveToolController::getClustersByHaId(1);
-        $enegyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
-        $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["try"]["clusters"], $enegyCost["energy_unit_cost"]);
+        $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
+        $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["try"]["clusters"], $energyCost["energy_unit_cost"]);
         dd($result);
         return view("tryCalculate")->with('data',$result);
     }
@@ -109,12 +109,12 @@ class SaveToolController extends Controller
     {
         $result = [
             "success" => true,
-            "energy_unit_cost" => ""
+            "energy_unit_cost" => []
         ];
 
-        $energy_unit_cost=SaveInvestment::select("energy_unit_cost")->where("investment_id",$investment_id)->get();
+        $energy_unit_cost=SaveInvestment::where("id",$investment_id)->get(['energy_unit_cost']);
         if ($energy_unit_cost) {
-            $result["energy_unit_cost"] = $energy_unit_cost;
+            $result["energy_unit_cost"] = $energy_unit_cost->toArray();
         }
 
         return $result;
