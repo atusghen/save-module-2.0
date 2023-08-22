@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SaveToolController;
+use App\Http\Controllers\CalculateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,4 +21,4 @@ Route::get('/', function () {
 
 Route::get('plants', [SaveToolController::class, 'readPlantsView'])->name('savetool_read_view_plants');
 Route::get('has', [SaveToolController::class, 'readHasView'])->name('savetool_read_view_has');
-Route::get('tryCalculate', [SaveToolController::class, 'try'])->name('savetool_try');
+Route::get('tryCalculate', [CalculateController::class, 'showSpesaEnergeticaPerHA'])->name('savetool_try');

@@ -17,25 +17,16 @@ use Illuminate\Support\Facades\Validator;
 class SaveToolController extends Controller
 {
 
-    public function try(Request $request, $id_crypted = null){
-        $data["fields"] = config("save");
-        $data["try"] = SaveToolController::getClustersByHaId(1);
-        $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
-        $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["try"]["clusters"], $energyCost["energy_unit_cost"]);
-        dd($result);
-        return view("tryCalculate")->with('data',$result);
-    }
-
     public function readHasView(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
-        $data["has"] = SaveToolController::getHas(3);
+        $data["has"] = SaveToolController::getHasByPlantId(3);
         dd($data["has"]);
         return view("has")->with('data', $data);
     }
 
     public function readPlantsView(Request $request, $id_crypted = null){
         $data["fields"] = config("save");
-        $data["plants"] = SaveToolController::getPlants(3);
+        $data["plants"] = SaveToolController::getPlantsByUser(3);
         dd($data["plants"]);
         return view("plants")->with('data', $data);
     }
