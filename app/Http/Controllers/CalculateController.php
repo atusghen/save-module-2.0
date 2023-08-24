@@ -31,9 +31,9 @@ class CalculateController extends Controller
         //recupero il parametro dall'investimento selezionato
         $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
         $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["payload"]["clusters"], $energyCost["energy_unit_cost"]);
-        $result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
-        dump($result2);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
-        return view("tryCalculate")->with('data',$result2);
+        //$result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
+        dump($result);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
+        return view("tryCalculate")->with('data',$result);
     }
 
 
