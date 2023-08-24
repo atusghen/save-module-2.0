@@ -23,8 +23,9 @@ class CalculateController extends Controller
         //recupero il parametro dall'investimento selezionato
         $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1);
         $result = CalculateController::calcoloSpesaEnergeticaPerHa($data["payload"]["clusters"], $energyCost["energy_unit_cost"]);
-        dump($result);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
-        return view("tryCalculate")->with('data',$result);
+        $result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
+        dump($result2);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
+        return view("tryCalculate")->with('data',$result2);
     }
 
 
@@ -79,21 +80,20 @@ class CalculateController extends Controller
      * calcolo parametro "Costi/benefici annuali in consumo energetico"
      * */
 
-    public function calcoloConsumoEnergeticoPerHa($result){
+    public function calcoloConsumoEnergeticoPerHa($clusters){
 
         $consumoEnergeticoHa = 0;
 
-        for ($i = 0; $i < count($result["clusters"]); $i++) {
-            $cluster = $result["clusters"][$i];
+        for ($i = 0; $i < count($clusters); $i++) {
+            $cluster = $clusters[$i];
 
-            $consumoEnergetico = ($cluster->hours_full_lighting + (1 - ($cluster->dimmering / 100)) * $cluster->hours_dimmer_lighting) * $cluster->lamp_num
-                * $cluster->average_device_power;
+            $consumoEnergetico = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["lamp_num"]
+                * $cluster["average_device_power"];
 
             $consumoEnergeticoHa += $consumoEnergetico;
-            dd($consumoEnergetico);
         }
 
-        dd($consumoEnergeticoHa);
+        return $consumoEnergeticoHa;
 
     }
 
