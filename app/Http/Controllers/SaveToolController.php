@@ -60,7 +60,7 @@ class SaveToolController extends Controller
     }
 
 
-    protected static function getHasByPlantId($plant_id){
+    public static function getHasByPlantId($plant_id){
         $result = [
             "success" => true,
             "dataAsIs" => [],

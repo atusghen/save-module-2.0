@@ -22,3 +22,5 @@ Route::get('/', function () {
 Route::get('plants', [SaveToolController::class, 'readPlantsView'])->name('savetool_read_view_plants');
 Route::get('has', [SaveToolController::class, 'readHasView'])->name('savetool_read_view_has');
 Route::get('tryCalculate', [CalculateController::class, 'showSpesaEnergeticaPerHA'])->name('savetool_try');
+Route::get('tryCalculate2', [CalculateController::class, 'showImportoInvestimentoPerHA'])->name('savetool_try2');
+

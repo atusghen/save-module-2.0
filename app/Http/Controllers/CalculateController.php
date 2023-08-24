@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 class CalculateController extends Controller
 {
 
+    public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
+
+        $data = SaveToolController::getHasByPlantId(1);
+        $result =  $this->importoInvestimentoHA($data["dataToBe"][0]);
+        //dump($result);  eliminato con la view
+        return view("tryCalculate")->with('data',$result);
+    }
+
     /**
      * Questo metodo prende in input un HA id e un Investment ID e calcola la spesa energetica dell'HA dato l'investimento
      * ha quindi a disposizione tutti i parametri dell'investimento ed è la funzione guida dell'operazione di simulazione
@@ -50,15 +58,24 @@ class CalculateController extends Controller
      * @input costo_medio_lampada               -> $has[lamp_cost]
      * @input costo_infrastruttura              ->    non chiaro, forse $has[infrastructure_maintenance_cost]
      * @input costo_medio_smaltimento_lampada   -> $has[lamp_disposal]
-     * @input n_lampade                         -> sum($clusters[lamp_num])
+     * @input n_lampade                         -> $cluser[lamp_num]
      * @input costo_rifacimento_imp_elett       -> $has[system_renovation_cost] colonna da aggiungere
      * @input costo_attività_prodomiche         -> $has[prodromal_activities_cost]
      * @input costo_quadro                      -> $has[panel_cost]
-     * @input n_quadri_el                       -> sum($clusters[device_num])
+     * @input n_quadri_el                       -> $has[panel_num]
      *
      * */
     public function importoInvestimentoHA($ha){
-        $data["cluster"] = SaveToolController::getClustersByHaId(1);
+        $clusters = SaveToolController::getClustersByHaId(1)["clusters"];
+        $sommaParziale = 0;
+        for ($i = 0; $i < count($clusters); $i++) {
+            $cluster = $clusters[$i];
+            $sommaParziale += ($ha["lamp_cost"] + $ha["infrastructure_maintenance_cost"] + $ha["lamp_disposal"]) * $cluster["lamp_num"];
+        }
+
+        $sommaParziale += $ha["system_renovation_cost"] + $ha["prodromal_activities_cost"] + ($ha["panel_cost"] * $ha["panel_num"]);
+
+        return $sommaParziale;
 
     }
 
