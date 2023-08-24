@@ -99,7 +99,7 @@ class CalculateController extends Controller
 
     public function calcoloConsumoEnergeticoPerCluser($cluster){
 
-        $consumoEnergeticoCluster = ($cluster["hours_full_light"] + (1-($cluster[dimmering]/100)) * $cluster[hours_dimmering_light]) * $cluster[device_num] * $cluster[average_device_power];
+        $consumoEnergeticoCluster = ($cluster["hours_full_light"] + (1-($cluster["dimmering"]/100)) * $cluster["hours_dimmering_light"]) * $cluster["device_num"] * $cluster["average_device_power"];
         return $consumoEnergeticoCluster;
     }
 
