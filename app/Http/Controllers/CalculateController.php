@@ -69,7 +69,16 @@ class CalculateController extends Controller
 
     }
 
-    //calcolo parametro "Costi/benefici annuali in consumo energetico"
+    /**
+     * @input ore_acc_piena     ->$cluster[hours_full_light]
+     * @input %dimm             ->$cluster[dimmering]
+     * @input ore_dimm          ->$cluster[hours_dimmering_light]
+     * @input n_apparecchi      ->$cluster[device_num]
+     * @input potenza_m_morsett ->$cluster[average_device_power]
+     *
+     * calcolo parametro "Costi/benefici annuali in consumo energetico"
+     * */
+
     public function calcoloConsumoEnergeticoPerHa($result){
 
         $consumoEnergeticoHa = 0;
@@ -87,6 +96,13 @@ class CalculateController extends Controller
         dd($consumoEnergeticoHa);
 
     }
+
+    public function calcoloConsumoEnergeticoPerCluser($cluster){
+
+        $consumoEnergeticoCluster = ($cluster["hours_full_light"] + (1-($cluster[dimmering]/100)) * $cluster[hours_dimmering_light]) * $cluster[device_num] * $cluster[average_device_power];
+        return $consumoEnergeticoCluster;
+    }
+
 
 
     public function deltaConsumoEnergetico($consumoEnergeticoHaAsIs, $consumoEnergeticoHaToBe){
