@@ -12,7 +12,7 @@ class CalculateController extends Controller
     public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
 
         $data = SaveToolController::getHasByPlantId(1);
-        $result =  $this->importoInvestimentoHA($data["dataToBe"][0]);
+        $result =  $this->importoInvestimentoPerHA($data["dataToBe"][0]);
         //dump($result);  eliminato con la view
         return view("tryCalculate")->with('data',$result);
     }
@@ -36,37 +36,18 @@ class CalculateController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
-
-    //calcolo parametro "Costi/benefici annuali in spesa energetica"
-    public static function calcoloSpesaEnergeticaPerHa($clusters, $costo_unitario){
-
-        $spesaEnergeticaHa = 0;
-
-        for ($i = 0; $i < count($clusters); $i++) {
-            $cluster = $clusters[$i];
-
-            $spesaEnergetica = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["lamp_num"]
-                * $cluster["average_device_power"] * ((float)$costo_unitario[0] / 1000);
-
-            $spesaEnergeticaHa += $spesaEnergetica;
-        }
-
-        return $spesaEnergeticaHa;
-
-    }
-
     /**
      * @input costo_medio_lampada               -> $has[lamp_cost]
      * @input costo_infrastruttura              ->    non chiaro, forse $has[infrastructure_maintenance_cost]
      * @input costo_medio_smaltimento_lampada   -> $has[lamp_disposal]
-     * @input n_lampade                         -> $cluser[lamp_num]
+     * @input n_lampade                         -> $cluster[lamp_num]
      * @input costo_rifacimento_imp_elett       -> $has[system_renovation_cost] colonna da aggiungere
      * @input costo_attività_prodomiche         -> $has[prodromal_activities_cost]
      * @input costo_quadro                      -> $has[panel_cost]
      * @input n_quadri_el                       -> $has[panel_num]
      *
      * */
-    public function importoInvestimentoHA($ha){
+    public static function importoInvestimentoPerHA($ha){
         $clusters = SaveToolController::getClustersByHaId(1)["clusters"];
         $sommaParziale = 0;
         for ($i = 0; $i < count($clusters); $i++) {
@@ -81,12 +62,6 @@ class CalculateController extends Controller
     }
 
 
-    public function deltaSpesaEnergetica($spesaEnergeticaHaAsIs, $spesaEnergeticaHaToBe){
-
-        return $spesaEnergeticaHaAsIs - $spesaEnergeticaHaToBe;
-
-    }
-
     /**
      * @input ore_acc_piena     ->$cluster[hours_full_light]
      * @input %dimm             ->$cluster[dimmering]
@@ -97,14 +72,17 @@ class CalculateController extends Controller
      * calcolo parametro "Costi/benefici annuali in consumo energetico"
      * */
 
-    public function calcoloConsumoEnergeticoPerHa($clusters){
+    public static function calcoloConsumoEnergeticoPerHa($ha){
+
+        $clusters = SaveToolController::getClustersByHaId($ha["ha_id"])["clusters"];
 
         $consumoEnergeticoHa = 0;
 
+        //sommatoria per ogni cluster
         for ($i = 0; $i < count($clusters); $i++) {
             $cluster = $clusters[$i];
 
-            $consumoEnergetico = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["lamp_num"]
+            $consumoEnergetico = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmering_light"]) * $cluster["device_num"]
                 * $cluster["average_device_power"];
 
             $consumoEnergeticoHa += $consumoEnergetico;
@@ -114,17 +92,73 @@ class CalculateController extends Controller
 
     }
 
-    public function calcoloConsumoEnergeticoPerCluser($cluster){
+    public static function calcoloDeltaConsumoEnergeticoPerImpianto($plant)
+    {
+        $data = SaveToolController::getHasByPlantId($plant["id"]);
+        //calcolo il consumo energetico delle HA AS-IS
+        $arrayASIS = $data["dataAsIs"];
+        $consumoEnergeticoASIS = 0;
+        for ($i = 0; $i < count($arrayASIS); $i++) {
+            $haASIS = $arrayASIS[$i];
+            $consumoEnergeticoASIS += $consumoEnergeticoASIS + CalculateController::calcoloConsumoEnergeticoPerHa($haASIS);
+        }
 
-        $consumoEnergeticoCluster = ($cluster["hours_full_light"] + (1-($cluster["dimmering"]/100)) * $cluster["hours_dimmering_light"]) * $cluster["device_num"] * $cluster["average_device_power"];
-        return $consumoEnergeticoCluster;
+        //calcolo il consumo energetico delle HA TO-BE
+        $arrayTOBE = $data["dataToBe"];
+        $consumoEnergeticoTOBE = 0;
+        for ($i = 0; $i < count($arrayTOBE); $i++) {
+            $haTOBE = $arrayTOBE[$i];
+            $consumoEnergeticoTOBE += $consumoEnergeticoTOBE + CalculateController::calcoloConsumoEnergeticoPerHa($haTOBE);
+        }
+
+        //restituisco il risultato
+        return $consumoEnergeticoASIS - $consumoEnergeticoTOBE;
+    }
+
+
+    //calcolo parametro "Costi/benefici annuali in spesa energetica"
+    public static function calcoloSpesaEnergeticaPerHa($costo_unitario){
+
+        $clusters = SaveToolController::getClustersByHaId(1);
+
+        $spesaEnergeticaHa = 0;
+
+        for ($i = 0; $i < count($clusters); $i++) {
+            $cluster = $clusters[$i];
+
+            $spesaEnergetica = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmering_light"]) * $cluster["device_num"]
+                * $cluster["average_device_power"] * ((float)$costo_unitario[0] / 1000);
+
+            $spesaEnergeticaHa += $spesaEnergetica;
+        }
+
+        return $spesaEnergeticaHa;
+
+    }
+
+    public static function calcoloDeltaSpesaEnergeticaPerImpianto($plant)
+    {
+        $data = SaveToolController::getHasByPlantId($plant["id"]);
+        //calcolo il consumo energetico delle HA AS-IS
+        $arrayASIS = $data["dataAsIs"];
+        $spesaEnergeticaASIS = 0;
+        for ($i = 0; $i < count($arrayASIS); $i++) {
+            $haASIS = $arrayASIS[$i];
+            $spesaEnergeticaASIS += $spesaEnergeticaASIS + CalculateController::calcoloDeltaSpesaEnergeticaPerImpianto($haASIS);
+        }
+
+        //calcolo il consumo energetico delle HA TO-BE
+        $arrayTOBE = $data["dataToBe"];
+        $spesaEnergeticaTOBE = 0;
+        for ($i = 0; $i < count($arrayTOBE); $i++) {
+            $haTOBE = $arrayTOBE[$i];
+            $spesaEnergeticaTOBE += $spesaEnergeticaTOBE + CalculateController::calcoloDeltaSpesaEnergeticaPerImpianto($haTOBE);
+        }
+
+        //restituisco il risultato
+        return $spesaEnergeticaASIS - $spesaEnergeticaTOBE;
     }
 
 
 
-    public function deltaConsumoEnergetico($consumoEnergeticoHaAsIs, $consumoEnergeticoHaToBe){
-
-        return $consumoEnergeticoHaAsIs - $consumoEnergeticoHaToBe;
-
-    }
 }
