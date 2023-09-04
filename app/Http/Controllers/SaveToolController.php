@@ -127,17 +127,4 @@ class SaveToolController extends Controller
 
     }
 
-    /**
-     * calcola incentivi statali
-     *
-     *
-     * ricavo_incentivi = delta_consumo_energetico / kWH_TEP * valore_monetario_TEP
-     * */
-
-    public static function calcolaIncentiviStataliPerHA($ha)
-    {
-
-
-    }
-
 }
