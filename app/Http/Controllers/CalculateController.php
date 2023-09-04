@@ -6,6 +6,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+/**
+ *DOMANDE:
+ * 1) quando bisogna calcolare un delta tra un dato di zona omogenea AS-IS e TO-BE, ad esempio il delta spesa energetica, come
+ * sappiamo che una zona AS-IS corrisponde a una certa zona TO-BE per fare la differenza (delta) tra le due? Oppure
+ * sommiamo tutte le zone AS-IS tra di loro e tutte le TO-BE tra loro (ovviamente dello stesso impianto)
+ * e poi facciamo la differenza tra i due totali?
+ *
+ * 2) Cosa significano alcuni attributi del db: lamp_num (da noi inteso come: "Numero Lampade totali del CU"),
+ * device_num (da noi inteso come: "Numero Apparecchi/lampioni") della tabella save_clusters,
+ * panel_num (da noi inteso come: "Numero quadri") della tabella save_has
+ *
+ * 3) Abbiamo aggiunto dei campi nel db, vanno bene?
+ */
+
 class CalculateController extends Controller
 {
 
@@ -94,6 +108,7 @@ class CalculateController extends Controller
 
     public static function calcoloDeltaConsumoEnergeticoPerImpianto($plant)
     {
+        //prendo le zone omogenee in base all'id dell'impianto
         $data = SaveToolController::getHasByPlantId($plant["id"]);
         //calcolo il consumo energetico delle HA AS-IS
         $arrayASIS = $data["dataAsIs"];
@@ -119,6 +134,7 @@ class CalculateController extends Controller
     //calcolo parametro "Costi/benefici annuali in spesa energetica"
     public static function calcoloSpesaEnergeticaPerHa($costo_unitario){
 
+        //prendo tutti i cluster che appartengono alla zona omogenea con un certo id
         $clusters = SaveToolController::getClustersByHaId(1);
 
         $spesaEnergeticaHa = 0;
@@ -126,9 +142,11 @@ class CalculateController extends Controller
         for ($i = 0; $i < count($clusters); $i++) {
             $cluster = $clusters[$i];
 
+            //calcolo spesa energetica i-esimo cluster
             $spesaEnergetica = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmering_light"]) * $cluster["device_num"]
                 * $cluster["average_device_power"] * ((float)$costo_unitario[0] / 1000);
 
+            //somma delle singole spese energetiche in quella generale della zona omogenea
             $spesaEnergeticaHa += $spesaEnergetica;
         }
 
