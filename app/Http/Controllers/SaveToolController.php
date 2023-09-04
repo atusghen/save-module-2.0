@@ -115,12 +115,12 @@ class SaveToolController extends Controller
     {
         $result = [
             "success" => true,
-            "investment" => []
+            "investment" => ""
         ];
 
         $investment = SaveInvestment::where("id",$investment_id)->get();
         if ($investment) {
-            $result["investment"] = $investment->toArray();
+            $result["investment"] = $investment->first();
         }
 
         return $result;
