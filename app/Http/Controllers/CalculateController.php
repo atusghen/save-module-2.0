@@ -23,42 +23,9 @@ use Illuminate\Http\Request;
 class CalculateController extends Controller
 {
 
-    public function showFlussiDiCassaPerPlant(Request $request, $id_crypted = null){
-
-        $plant["id"] = 1;
-        $investment = (SaveToolController::getInvestmentById(1)["investment"]);
-        $result =  $this->calcoloFlussiDiCassaPerPlant($plant, $investment);
-        //dump($result);  eliminato con la view
-        return view("tryCalculate")->with('data',$result);
-    }
-
-    public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
-
-        $data = SaveToolController::getHasByPlantId(1);
-        $result =  $this->importoInvestimentoPerHA($data["dataToBe"][0]);
-        //dump($result);  eliminato con la view
-        return view("tryCalculate")->with('data',$result);
-    }
-
     /**
-     * Questo metodo prende in input un HA id e un Investment ID e calcola la spesa energetica dell'HA dato l'investimento
-     * ha quindi a disposizione tutti i parametri dell'investimento ed è la funzione guida dell'operazione di simulazione
-     * dal quale recuperare l'enery unit cost
-     * */
-    public function showSpesaEnergeticaPerHA(Request $request, $id_crypted = null){
-        //$data["fields"] = config("save");
-
-        $has = SaveToolController::getHasByPlantId(1);
-
-        //recupero il parametro dall'investimento selezionato
-        $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1)["energy_unit_cost"];
-        $result = CalculateController::calcoloSpesaEnergeticaPerHa(($has["dataToBe"])[0], $energyCost);
-        //$result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
-        dump($result);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
-        return view("tryCalculate")->with('data',$result);
-    }
-
-    /**
+     * Calcola Costo Investimento sommando l'importo di ogni ZO
+     *
      * @input costo_medio_lampada               -> $has[lamp_cost]
      * @input costo_infrastruttura              ->    non chiaro, forse $has[infrastructure_maintenance_cost]
      * @input costo_medio_smaltimento_lampada   -> $has[lamp_disposal]
@@ -67,10 +34,9 @@ class CalculateController extends Controller
      * @input costo_attività_prodomiche         -> $has[prodromal_activities_cost]
      * @input costo_quadro                      -> $has[panel_cost]
      * @input n_quadri_el                       -> $has[panel_num]
-     *
      * */
-    public static function importoInvestimentoPerHA($ha){
-        $clusters = SaveToolController::getClustersByHaId(1)["clusters"];
+    public static function calcolaImportoInvestimentoPerHA($ha){
+        $clusters = SaveToolController::getClustersByHaId($ha["id"])["clusters"];
         $sommaParziale = 0;
         for ($i = 0; $i < count($clusters); $i++) {
             $cluster = $clusters[$i];
@@ -80,12 +46,12 @@ class CalculateController extends Controller
         $sommaParziale += $ha["system_renovation_cost"] + $ha["prodromal_activities_cost"] + ($ha["panel_cost"] * $ha["panel_num"]);
 
         return $sommaParziale;
-
     }
 
-
     /**
-     * calcolo parametro "Costi/benefici annuali in consumo energetico"
+     * Calcolo Costi/benefici annuali in consumo energetico della ZO
+     * sommando i valori degli Cluster che gli appartengono
+     *
      * @input ore_acc_piena     ->$cluster[hours_full_light]
      * @input %dimm             ->$cluster[dimmering]
      * @input ore_dimm          ->$cluster[hours_dimmering_light]
@@ -113,9 +79,14 @@ class CalculateController extends Controller
 
     }
 
+
     /**
+     * Calcolo Costi/benefici annuali in consumo energetico come Delta tra
+     * la sommatoria delle ZO AS-IS e TO-BE
+     * il risultato è UN AGGREGATO di tutte le ZO (e non un array con i singoli delta)
+     *
      * @input $plant
-     * @input calcoloConsumoEnergeticoPerHa($haASIS)
+     * @input calcoloConsumoEnergeticoPerHa($has)
      * */
     public static function calcoloDeltaConsumoEnergeticoPerImpianto($plant)
     {
@@ -141,11 +112,13 @@ class CalculateController extends Controller
         return $consumoEnergeticoASIS - $consumoEnergeticoTOBE;
     }
 
+
     /**
+     * Calcola costi/benefici annuali in spesa energetica per ZO
+     *
      * @input $ha
      * @input $costo_unitario
      * */
-    //calcolo parametro "Costi/benefici annuali in spesa energetica"
     public static function calcoloSpesaEnergeticaPerHa($ha, $costo_unitario){
 
         //prendo tutti i cluster che appartengono alla zona omogenea con un certo id
@@ -158,7 +131,7 @@ class CalculateController extends Controller
 
             //calcolo spesa energetica i-esimo cluster
             $spesaEnergetica = ($cluster["hours_full_lighting"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_lighting"]) * $cluster["device_num"]
-                * $cluster["average_device_power"] * ((float)$costo_unitario[0] / 1000);
+                * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
 
             //somma delle singole spese energetiche in quella generale della zona omogenea
             $spesaEnergeticaHa += $spesaEnergetica;
@@ -168,9 +141,14 @@ class CalculateController extends Controller
 
     }
 
+
     /**
-     * @input $plant
+     * Calcolo Costi/benefici annuali in spesa energetica come Delta tra
+     * la sommatoria delle ZO AS-IS e TO-BE
+     * il risultato è UN AGGREGATO di tutte le ZO (e non un array con i singoli delta)
      *
+     * @input $plant
+     * @input calcoloSpesaEnergeticoPerHa($has)
      * */
 
     public static function calcoloDeltaSpesaEnergeticaPerImpianto($plant)
@@ -197,8 +175,10 @@ class CalculateController extends Controller
         return $spesaEnergeticaASIS - $spesaEnergeticaTOBE;
     }
 
+
     /**
-     * calcola incentivi statali per impianto
+     * Calcola incentivi statali per impianto
+     *
      * @input delta_consumo_energetico from calcoloDeltaConsumoEnergeticoPerImpianto($plant)
      * @input $investments(tep_kwh)
      * @input $investments(tep_value)
@@ -211,17 +191,17 @@ class CalculateController extends Controller
         $deltaImpianto = CalculateController::calcoloDeltaConsumoEnergeticoPerImpianto($plant);
         $parametriInvestimento = SaveToolController::getInvestmentById($investment["id"])["investment"];
         return $deltaImpianto / $parametriInvestimento["tep_kwh"] * $parametriInvestimento["tep_value"];
-
     }
+
 
     /**
      * calcola il totale lampade per HA in base ai cluster
-     * @input $ha
      *
+     * @input $ha
      * */
 
     public static function calcolaTotaleLampadePerHA($ha) {
-        $clusters = SaveToolController::getClustersByHaId(1)["clusters"];
+        $clusters = SaveToolController::getClustersByHaId($ha["id"])["clusters"];
 
         $nLampadeTot = 0;
 
@@ -233,9 +213,12 @@ class CalculateController extends Controller
         return $nLampadeTot;
     }
 
+
     /**
      * calcola i costi di manutenzione dell'impianto asIs restituendo un risultato per ogni HA
      * si tratta di un costo annuale per ogni HA senza associazione
+     * @output come array
+     *
      * @input $has(lamp_cost)
      * @input $has(lamp_disposal)
      * @input calcolaTotaleLampadePerHA($ha)
@@ -246,7 +229,7 @@ class CalculateController extends Controller
         $result = [];
         for ($i = 0; $i < count($hasAsIs); $i++){
             $ha = $hasAsIs[$i];
-            $result[$i] = ($hasAsIs["lamp_cost"] + $hasAsIs["lamp_disposal"]) * CalculateController::calcolaTotaleLampadePerHA($ha);
+            $result[$i] = CalculateController::calcolaCostiManutezionePerHA($ha);
         }
 
         return $result;
@@ -258,6 +241,8 @@ class CalculateController extends Controller
 
     /**
      * calcola i costi di manutenzione dell'impianto ToBe restituendo un risultato per ogni HA
+     * @output come array
+     *
      * @input $has(lamp_cost)
      * @input $has(lamp_disposal)
      * @input calcolaTotaleLampadePerHA($ha)
@@ -268,11 +253,12 @@ class CalculateController extends Controller
         $result = [];
         for ($i = 0; $i < count($hasAsIs); $i++){
             $ha = $hasAsIs[$i];
-            $result[$i] = ($ha["lamp_cost"] + $ha["lamp_disposal"]) * CalculateController::calcolaTotaleLampadePerHA($ha);
+            $result[$i] = CalculateController::calcolaCostiManutezionePerHA($ha);
         }
 
         return $result;
     }
+
 
     /**
      * calcola i costi dell'infrastruttura TOBE
@@ -285,7 +271,7 @@ class CalculateController extends Controller
         $result = [];
         for ($i = 0; $i < count($hasAsIs); $i++){
             $ha = $hasAsIs[$i];
-            $result[$i] = $ha["infrastructure_maintenance_cost"] * CalculateController::calcolaTotaleLampadePerHA($ha);
+            $result[$i] = CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha);
         }
         return $result;
     }
@@ -296,6 +282,7 @@ class CalculateController extends Controller
 
 
     /**
+     *
      * @input calcoloDeltaSpesaEnergeticaPerImpianto($plant)
      * @input calcolaIncentiviStataliPerImpiantoAndInvestimento($plant, $investment)
      * @input calcolaCostiManutenzioneAsIs($plant)
@@ -307,40 +294,44 @@ class CalculateController extends Controller
      * @input calcolaCostiManutenzioneToBe($plant)
      * @input $investment(management_cost)
      *
-     * altri inpui di ciclo
      *
      * */
     public static function calcoloFlussiDiCassaPerPlant($plant, $investment){
         $hasAsIs = SaveToolController::getHasByPlantId($plant["id"])["dataAsIs"];
-        $result = 0;
-        //ricavo
-        for ($i = 0; $i < count($hasAsIs); $i++){
-            $ha = $hasAsIs[$i];
-            $result += CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+        $result = [];
+
+        for($j = 1; $j < $investment["duration_amortization"]; $j++){
+            //ricavo
+            for ($i = 0; $i < count($hasAsIs); $i++){
+                $ha = $hasAsIs[$i];
+                $result[$j] += CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+            }
+
+            //ricavi
+            $result[$j] += CalculateController::calcoloDeltaSpesaEnergeticaPerImpianto($plant);
+            $result[$j] += CalculateController::calcolaIncentiviStataliPerImpiantoAndInvestimento($plant, $investment);
+            //costo
+            $result[$j] -= $investment["mortgage_installment"] *  $investment["duration_amortization"];
+            $result[$j] -= $investment["mortgage_installment"] *  $investment["fee_esco"];
+
+            //costo
+            $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
+            for ($i = 0; $i < count($hasToBe); $i++){
+                $ha = $hasToBe[$i];
+                $result[$j] -= CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+            }
+
+            //costo
+            $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
+            for ($i = 0; $i < count($hasToBe); $i++){
+                $ha = $hasToBe[$i];
+                $result[$j]-= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+            }
+
+            $result[$j]-= $investment["management_cost"];
+
         }
 
-        //ricavi
-        $result += CalculateController::calcoloDeltaSpesaEnergeticaPerImpianto($plant);
-        $result += CalculateController::calcolaIncentiviStataliPerImpiantoAndInvestimento($plant, $investment);
-        //costo
-        $result -= $investment["mortgage_installment"] *  $investment["duration_amortization"];
-        $result -= $investment["mortgage_installment"] *  $investment["fee_esco"];
-
-        //costo
-        $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
-        for ($i = 0; $i < count($hasToBe); $i++){
-            $ha = $hasToBe[$i];
-            $result -= CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
-        }
-
-        //costo
-        $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
-        for ($i = 0; $i < count($hasToBe); $i++){
-            $ha = $hasToBe[$i];
-            $result -= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
-        }
-
-        $result -= $investment["management_cost"];
 
         return $result;
     }

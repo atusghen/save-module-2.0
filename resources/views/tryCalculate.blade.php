@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <div>
-    ciao {{$data}}
+    risultato -> {{$data}}
 
 </div>
 
