@@ -2,7 +2,6 @@
 
 <div>
     risultato -> {{$data}}
-
 </div>
 
 

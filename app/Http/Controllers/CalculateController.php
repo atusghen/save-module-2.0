@@ -154,7 +154,7 @@ class CalculateController extends Controller
     public static function calcoloDeltaSpesaEnergeticaPerImpianto($plant)
     {
         $data = SaveToolController::getHasByPlantId($plant["id"]);
-        $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1)["energy_unit_cost"];
+        $energyCost = (SaveToolController::getEnergyUnitCostForInvestment(1))["energy_unit_cost"];
         //calcolo il consumo energetico delle HA AS-IS
         $arrayASIS = $data["dataAsIs"];
         $spesaEnergeticaASIS = 0;
@@ -298,41 +298,52 @@ class CalculateController extends Controller
      * */
     public static function calcoloFlussiDiCassaPerPlant($plant, $investment){
         $hasAsIs = SaveToolController::getHasByPlantId($plant["id"])["dataAsIs"];
-        $result = [];
 
-        for($j = 1; $j < $investment["duration_amortization"]; $j++){
+        //inizializzazione array
+        $result = [];
+        for($j = 0; $j <= $investment["duration_amortization"]; $j++){
+            $result[$j] = 0;
+        }
+
+        //calcolo importo investimento per Impianto
+        for ($i = 0; $i < count($hasAsIs); $i++){
+            $ha = $hasAsIs[$i];
+            $result[0] -= CalculateController::calcolaImportoInvestimentoPerHA($ha) * $investment["share_municipality"] /100;
+        }
+
+        for($j = 1; $j <= $investment["duration_amortization"]; $j++){
             //ricavo
             for ($i = 0; $i < count($hasAsIs); $i++){
                 $ha = $hasAsIs[$i];
-                $result[$j] += CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+                $result[$j] += CalculateController::calcolaCostiManutezionePerHA($ha) * (($j % $ha["maintenance_interval"]==0)? 1 : 0);
             }
 
             //ricavi
             $result[$j] += CalculateController::calcoloDeltaSpesaEnergeticaPerImpianto($plant);
             $result[$j] += CalculateController::calcolaIncentiviStataliPerImpiantoAndInvestimento($plant, $investment);
             //costo
-            $result[$j] -= $investment["mortgage_installment"] *  $investment["duration_amortization"];
-            $result[$j] -= $investment["mortgage_installment"] *  $investment["fee_esco"];
+            $result[$j] -= $investment["mortgage_installment"];
+            $result[$j] -= $investment["fee_esco"];
 
             //costo
             $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
             for ($i = 0; $i < count($hasToBe); $i++){
                 $ha = $hasToBe[$i];
-                $result[$j] -= CalculateController::calcolaCostiManutezionePerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+                $result[$j] -= CalculateController::calcolaCostiManutezionePerHA($ha) * (($j % $ha["maintenance_interval"]==0)? 1 : 0);
             }
 
             //costo
             $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
             for ($i = 0; $i < count($hasToBe); $i++){
                 $ha = $hasToBe[$i];
-                $result[$j]-= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * ($investment["duration_amortization"] / floor($ha["maintenance_interval"]) );
+                $result[$j]-= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * (($j % $ha["maintenance_interval"]==0)? 1 : 0);
             }
 
             $result[$j]-= $investment["management_cost"];
 
         }
 
-
+        dd($result);
         return $result;
     }
 

@@ -45,8 +45,8 @@ class SaveToolController extends Controller
         $plant["id"] = 1;
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
         $result =  CalculateController::calcoloFlussiDiCassaPerPlant($plant, $investment);
-        //dump($result);  eliminato con la view
-        return view("tryCalculate")->with('data',$result);
+        dump($result);  //eliminato con la view
+        return view("tryCalculate")->with('data',0);
     }
 
     public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
@@ -68,10 +68,10 @@ class SaveToolController extends Controller
         $has = SaveToolController::getHasByPlantId(1);
 
         //recupero il parametro dall'investimento selezionato
-        $energyCost = SaveToolController::getEnergyUnitCostForInvestment(1)["energy_unit_cost"];
+        $energyCost = (SaveToolController::getEnergyUnitCostForInvestment(1))["energy_unit_cost"];
         $result = CalculateController::calcoloSpesaEnergeticaPerHa(($has["dataToBe"])[0], $energyCost);
         //$result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
-        dump($result);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
+        //dump($energyCost);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
         return view("tryCalculate")->with('data',$result);
     }
 
@@ -154,12 +154,12 @@ class SaveToolController extends Controller
     {
         $result = [
             "success" => false,
-            "energy_unit_cost" => []
+            "energy_unit_cost" => 0.0
         ];
 
-        $energy_unit_cost=SaveInvestment::where("id",$investment_id)->get(['energy_unit_cost']);
+        $energy_unit_cost=SaveInvestment::firstWhere("id",$investment_id)->value('energy_unit_cost');
         if ($energy_unit_cost) {
-            $result["energy_unit_cost"] = $energy_unit_cost->first();
+            $result["energy_unit_cost"] = (float)$energy_unit_cost;
             $result["success"] = true;
         }
 
