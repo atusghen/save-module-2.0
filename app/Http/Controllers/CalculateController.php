@@ -18,6 +18,8 @@ use Illuminate\Http\Request;
  * panel_num (da noi inteso come: "Numero quadri") della tabella save_has
  *
  * 3) Abbiamo aggiunto dei campi nel db, vanno bene?
+ *
+ * 4) database con i dati
  */
 
 class CalculateController extends Controller
@@ -336,14 +338,14 @@ class CalculateController extends Controller
             $hasToBe = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
             for ($i = 0; $i < count($hasToBe); $i++){
                 $ha = $hasToBe[$i];
-                $result[$j]-= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * (($j % $ha["maintenance_interval"]==0)? 1 : 0);
+                $result[$j]-= CalculateController::calcolaCostoManutenzioneInfrastrutturaPerHA($ha) * (($j % $ha["infrastructure_maintenance_interval"]==0)? 1 : 0);
             }
 
             $result[$j]-= $investment["management_cost"];
 
         }
 
-        dd($result);
+        //dd($result);
         return $result;
     }
 

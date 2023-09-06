@@ -45,8 +45,8 @@ class SaveToolController extends Controller
         $plant["id"] = 1;
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
         $result =  CalculateController::calcoloFlussiDiCassaPerPlant($plant, $investment);
-        dump($result);  //eliminato con la view
-        return view("tryCalculate")->with('data',0);
+        dd($result);  //eliminato con la view
+        return view("tryCalculate")->with('data',$result);
     }
 
     public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
@@ -57,11 +57,6 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
-    /**
-     * Questo metodo prende in input un HA id e un Investment ID e calcola la spesa energetica dell'HA dato l'investimento
-     * ha quindi a disposizione tutti i parametri dell'investimento ed è la funzione guida dell'operazione di simulazione
-     * dal quale recuperare l'enery unit cost
-     * */
     public function showSpesaEnergeticaPerHA(Request $request, $id_crypted = null){
         //$data["fields"] = config("save");
 
