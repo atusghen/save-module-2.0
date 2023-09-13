@@ -7,17 +7,17 @@ class Risultato_singolaZO {
 
     public $tobe_name = "";
 
-    public $investment_amount = "";
+    public $investment_amount = 0;
 
-    public $asis_maintenance_cost = "";
+    public $asis_maintenance_cost = [];
 
-    public $tobe_maintenance_cost = "";
+    public $tobe_maintenance_cost = 0;
 
-    public $incentive_revenue = "";
+    public $incentive_revenue = 0;
 
-    public $delta_energy_expenditure = "";
+    public $delta_energy_expenditure = 0;
 
-    public $delta_energy_consumption = "";
+    public $delta_energy_consumption = 0;
 
     public $cash_flow = [];
 
@@ -56,7 +56,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getInvestmentAmount(): string
+    public function getInvestmentAmount()
     {
         return $this->investment_amount;
     }
@@ -72,7 +72,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getAsisMaintenanceCost(): string
+    public function getAsisMaintenanceCost()
     {
         return $this->asis_maintenance_cost;
     }
@@ -88,7 +88,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getTobeMaintenanceCost(): string
+    public function getTobeMaintenanceCost()
     {
         return $this->tobe_maintenance_cost;
     }
@@ -104,7 +104,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getIncentiveRevenue(): string
+    public function getIncentiveRevenue()
     {
         return $this->incentive_revenue;
     }
@@ -120,7 +120,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getDeltaEnergyExpenditure(): string
+    public function getDeltaEnergyExpenditure()
     {
         return $this->delta_energy_expenditure;
     }
@@ -136,7 +136,7 @@ class Risultato_singolaZO {
     /**
      * @return string
      */
-    public function getDeltaEnergyConsumption(): string
+    public function getDeltaEnergyConsumption()
     {
         return $this->delta_energy_consumption;
     }
