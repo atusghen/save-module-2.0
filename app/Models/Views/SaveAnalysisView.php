@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Views;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -8,10 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-
-class SavePlantView extends Authenticatable
+class SaveAnalysisView extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable;
 
 
     protected $connection = "";
@@ -19,7 +18,7 @@ class SavePlantView extends Authenticatable
     public function __construct() {
     }
 
-    protected $table = 'view_save_plants';
+    protected $table = 'view_save_analysis';
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +26,7 @@ class SavePlantView extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+
     ];
 
     /**
@@ -44,8 +44,6 @@ class SavePlantView extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'created_at' => 'datetime:d/m/Y',
-        'updated_at' => 'datetime:d/m/Y'
     ];
 
     protected $dates = ['created_at', 'updated_at'];

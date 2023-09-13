@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\DTO;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class SaveCluster extends Authenticatable
+class SavePlant extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,7 +18,7 @@ class SaveCluster extends Authenticatable
     public function __construct() {
     }
 
-    protected $table = 'save_clusters';
+    protected $table = 'save_plants';
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +26,7 @@ class SaveCluster extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        "ha_id","label","technology","lamp_num","device_num","average_device_power","dimmering","created_at"
+        "label","municipality_code","user_id","created_at"
     ];
 
     /**
