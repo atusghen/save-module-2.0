@@ -1,17 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests\ParamFormRequest;
 use App\Helpers\Utilities;
-use App\Models\SavePlant;
-use App\Models\SaveHA;
-use App\Models\SaveCluster;
-use App\Models\SaveInvestment;
+use App\Http\Requests\ParamFormRequest;
+use App\Models\DTO\SaveCluster;
+use App\Models\DTO\SaveHA;
+use App\Models\DTO\SaveInvestment;
+use App\Models\DTO\SavePlant;
 use App\Models\SaveAnalysisView;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 /*
  * Questa classe contiene tutti i metodi di get dal database necessari per fare i calcoli
@@ -70,6 +67,15 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
+    public function showDebug(Request $request, $id_crypted = null){
+        $plant["id"] = 1;
+        $investment = (SaveToolController::getInvestmentById(1)["investment"]);
+        $result = CalculateController::calcolo($plant, $investment);
+        echo json_encode($result);
+        dd($result);
+        return view("tryCalculate")->with('data',$result);
+    }
+
 
     ////////////////////////////////////////////////
     /// CRUD Methods
@@ -113,14 +119,14 @@ class SaveToolController extends Controller
             "dataToBe" => []
         ];
 
-        $hasASIS = SaveHA::where("plant_id",$plant_id)->where("type","ASIS")->get();
+        $hasASIS = SaveHA::where("plant_id",$plant_id)->where("type_ha","ASIS")->get();
         if ($hasASIS) {
             $result["dataAsIs"] = $hasASIS->toArray();
             $result["success"] = true;
         }
 
 
-        $hasTOBE = SaveHA::where("plant_id",$plant_id)->where("type","TOBE")->get();
+        $hasTOBE = SaveHA::where("plant_id",$plant_id)->where("type_ha","TOBE")->get();
         if ($hasTOBE) {
             $result["dataToBe"] = $hasTOBE->toArray();
             $result["success"] = true;
@@ -139,6 +145,21 @@ class SaveToolController extends Controller
         $clusters = SaveCluster::where("ha_id",$ha_id)->get();
         if ($clusters) {
             $result["clusters"] = $clusters->toArray();
+            $result["success"] = true;
+        }
+
+        return $result;
+    }
+
+    public static function getClustersByHaId_TOBEfeatured($ha_id){
+        $result = [
+            "success" => false,
+            "clusters" => ""
+        ];
+
+        $clusters = SaveCluster::where("ha_id",$ha_id)->where("is_to_be_featured","1")->get();
+        if ($clusters) {
+            $result["clusters"] = $clusters->first();
             $result["success"] = true;
         }
 

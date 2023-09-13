@@ -24,4 +24,5 @@ Route::get('has', [SaveToolController::class, 'readHasView'])->name('savetool_re
 Route::get('tryCalculate', [SaveToolController::class, 'showSpesaEnergeticaPerHA'])->name('savetool_try');
 Route::get('tryCalculate2', [SaveToolController::class, 'showImportoInvestimentoPerHA'])->name('savetool_try2');
 Route::get('tryCalculate3', [SaveToolController::class, 'showFlussiDiCassaPerPlant'])->name('savetool_try3');
+Route::get('tryCalculate4', [SaveToolController::class, 'showDebug'])->name('savetool_try4');
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\DTO;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -8,7 +8,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class SavePlant extends Authenticatable
+/**
+ * Definisce la tabella delle Homogeneous Area, sia TO-BE che ASIS
+ */
+
+class SaveHA extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,7 +22,7 @@ class SavePlant extends Authenticatable
     public function __construct() {
     }
 
-    protected $table = 'save_plants';
+    protected $table = 'save_has';
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +30,7 @@ class SavePlant extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        "label","municipality_code","user_id","created_at"
+        "plant_id","label_ha","type_ha","ref_has_is_id_ha", "is_ready","lamp_cost","lamp_disposal","maintenance_interval","panel_cost"
     ];
 
     /**
