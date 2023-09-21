@@ -345,6 +345,61 @@ class CalculateHelper
         return $result;
     }
 
+    public static function calcoloVANperImpianto($cashFlow, $wacc): float
+    {
+        $result = 0;
+        for($i=0; $i<count($cashFlow); $i++){
+            $result += ($cashFlow[$i]/(1+$wacc)^$i);
+        }
+
+        return $result;
+    }
+
+    public static function calcoloTIRperImpianto($cashFlow): ?float
+    {
+        $maxIterations = 100;
+        $tolerance = 0.00001;
+        $guess = 0.1;
+
+        $count = count($cashFlow);
+
+        $positive = false;
+        $negative = false;
+        for ($i = 0; $i < $count; $i++) {
+            if ($cashFlow[$i] > 0) {
+                $positive = true;
+            } else {
+                $negative = true;
+            }
+        }
+
+        if (!$positive || !$negative) {
+            return null;
+        }
+
+        $guess = ($cashFlow == 0) ? 0.1 : $guess;
+
+        for ($i = 0; $i < $maxIterations; $i++) {
+            $npv = 0;
+            $dnpv = 0;
+
+            for ($j = 0; $j < $count; $j++) {
+                $npv += $cashFlow[$j] / pow(1 + $guess, $j);
+                $dnpv -= $j * $cashFlow[$j] / pow(1 + $guess, $j + 1);
+            }
+
+            $newGuess = $guess - $npv / $dnpv;
+
+            if (abs($newGuess - $guess) < $tolerance) {
+                return $newGuess;
+            }
+
+            $guess = $newGuess;
+        }
+
+        return $guess;
+    }
+
 
     public static function calcolo($plant, $investment){
         $has = SaveToolController::getHasByPlantId($plant["id"]);
@@ -397,7 +452,21 @@ class CalculateHelper
             }
         }
 
-        return $result;
+        for($j = 0; $j<count($result[0]->cash_flow); $j++){
+            $cashFlowTotale[$j] = 0;
+        }
+        //calcolo cashflow totale
+        for($i = 0; $i<count($result); $i++){
+            for($j = 0; $j<count($result[$i]->cash_flow); $j++){
+                $cashFlowTotale[$j] += $result[$i]->cash_flow[$j];
+            }
+        }
+
+        $van = self::calcoloVANperImpianto($cashFlowTotale, $investment["wacc"]);
+        $tir = self::calcoloTIRperImpianto($cashFlowTotale);
+        $superResult = [ $result, $van, $tir];
+
+        return $superResult;
     }
 
 }
