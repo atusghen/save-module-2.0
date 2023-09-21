@@ -9,6 +9,7 @@ use App\Models\DTO\SaveInvestment;
 use App\Models\DTO\SavePlant;
 use App\Models\SaveAnalysisView;
 use Illuminate\Http\Request;
+use App\Http\Helpers\CalculateHelper;
 
 /*
  * Questa classe contiene tutti i metodi di get dal database necessari per fare i calcoli
@@ -41,7 +42,7 @@ class SaveToolController extends Controller
 
         $plant["id"] = 1;
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
-        $result =  CalculateController::calcoloFlussiDiCassaPerPlant($plant, $investment);
+        $result =  CalculateHelper::calcoloFlussiDiCassaPerPlant($plant, $investment);
         dd($result);  //eliminato con la view
         return view("tryCalculate")->with('data',$result);
     }
@@ -49,7 +50,7 @@ class SaveToolController extends Controller
     public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
 
         $data = SaveToolController::getHasByPlantId(1);
-        $result =  CalculateController::calcolaImportoInvestimentoPerHA($data["dataToBe"][0]);
+        $result =  CalculateHelper::calcolaImportoInvestimentoPerHA($data["dataToBe"][0]);
         //dump($result);  eliminato con la view
         return view("tryCalculate")->with('data',$result);
     }
@@ -61,7 +62,7 @@ class SaveToolController extends Controller
 
         //recupero il parametro dall'investimento selezionato
         $energyCost = (SaveToolController::getEnergyUnitCostForInvestment(1))["energy_unit_cost"];
-        $result = CalculateController::calcoloSpesaEnergeticaPerHa(($has["dataToBe"])[0], $energyCost);
+        $result = CalculateHelper::calcoloSpesaEnergeticaPerHa(($has["dataToBe"])[0], $energyCost);
         //$result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
         //dump($energyCost);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
         return view("tryCalculate")->with('data',$result);
@@ -70,7 +71,7 @@ class SaveToolController extends Controller
     public function showDebug(Request $request, $id_crypted = null){
         $plant["id"] = 1;
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
-        $result = CalculateController::calcolo($plant, $investment);
+        $result = CalculateHelper::calcolo($plant, $investment);
         echo json_encode($result);
         dd($result);
         return view("tryCalculate")->with('data',$result);
