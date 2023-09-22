@@ -400,6 +400,52 @@ class CalculateHelper
         return $guess;
     }
 
+    public static function calcoloPayBackTime($flussoDiCassaTotale){
+        $payBacktime = 0;
+        $flussoCumulativo[0] = $flussoDiCassaTotale[0];
+
+        for($i = 1; $i < count($flussoDiCassaTotale); $i++){
+            $flussoCumulativo[$i] = $flussoDiCassaTotale[$i] + $flussoCumulativo[$i-1];
+        }
+
+        for($j = count($flussoDiCassaTotale) - 2; $j > 0; $j--){
+            if($flussoCumulativo[$j] < 0){
+                $payBacktime = $j;
+            }
+        }
+
+        if($payBacktime > 0)
+        {
+            $payBacktime += abs($flussoDiCassaTotale[$j+1])/$flussoCumulativo[$j];
+        }else{
+            return null;
+        }
+
+        return $payBacktime;
+    }
+
+    public static function calcoloCanoneMinimo($importoInvestimento, $investment){
+        $investment_ESCO = $importoInvestimento * ($investment["share_esco"]/100);
+        $canoneIniziale = ($investment_ESCO) / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
+        $investimentoIniziale = $importoInvestimento + $canoneIniziale;
+
+        $ammortamento = $investimentoIniziale / $investment["project_duration"];
+        $result = ($canoneIniziale - $ammortamento * $investment["taxes"] / 100) / (1- $investment["taxes"] * 100);
+
+        return $result;
+    }
+
+    public static function calcoloCanoneMassimo($importoInvestimento, $investment){
+        $investimentoIniziale_comune = $importoInvestimento * ($investment["share_municipality"] / 100);
+        $ammortamento_comune = $investimentoIniziale_comune / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
+        $canoneIniziale = ($investment_ESCO) / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
+
+        $ammortamento = $investimentoIniziale / $investment["project_duration"];
+        $result = ($canoneIniziale - $ammortamento * $investment["taxes"] / 100) / (1- $investment["taxes"] * 100);
+
+        return $result;
+    }
+
 
     public static function calcolo($plant, $investment){
         $has = SaveToolController::getHasByPlantId($plant["id"]);
@@ -464,7 +510,9 @@ class CalculateHelper
 
         $van = self::calcoloVANperImpianto($cashFlowTotale, $investment["wacc"]);
         $tir = self::calcoloTIRperImpianto($cashFlowTotale);
-        $superResult = [ $result, $van, $tir];
+        $paybackTime = self::calcoloPayBackTime($cashFlowTotale);
+        $canoneMinimo = self::calcoloCanoneMinimo($cashFlowTotale[0], $investment);
+        $superResult = [ $result, $van, $tir, $cashFlowTotale, $paybackTime, $canoneMinimo];
 
         return $superResult;
     }
