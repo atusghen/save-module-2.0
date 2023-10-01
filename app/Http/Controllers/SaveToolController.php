@@ -40,7 +40,7 @@ class SaveToolController extends Controller
 
     public function showFlussiDiCassaPerPlant(Request $request, $id_crypted = null){
 
-        $plant["id"] = 1;
+        $plant["id"] = 2;
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
         $result =  CalculateHelper::calcoloFlussiDiCassaPerPlant($plant, $investment);
         dd($result);  //eliminato con la view
@@ -73,6 +73,31 @@ class SaveToolController extends Controller
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);
         $result = CalculateHelper::calcolo($plant, $investment);
         echo json_encode($result);
+        dd($result);
+        return view("tryCalculate")->with('data',$result);
+    }
+
+    public function calcoloVanETir(Request $request, $id_crypted = null){
+        $result = []; $result["success"] = false; $result["data"] = [];
+        if($request->has('wacc') && $request->has('amortization_duration'))
+        {
+             $plant["id"] = 2;
+            $investment = (SaveToolController::getInvestmentById(1)["investment"]);
+            $flussiDiCassaTotali =  CalculateHelper::calcoloFlussiDiCassaPerPlant($plant, $investment);
+
+            $waccArray = [$request->wacc[0], $request->wacc[1], $request->wacc[2]];
+            $result["data"]["van"][0] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali, $waccArray[0]);
+            $result["data"]["van"][1] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali, $waccArray[1]);
+            $result["data"]["van"][2] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali, $waccArray[2]);
+
+            $amortizationDurationArray = [$request->amortization_duration[0], $request->amortization_duration[1], $request->amortization_duration[2]];
+            $result["data"]["tir"][0] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[0]);
+            $result["data"]["tir"][1] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[1]);
+            $result["data"]["tir"][2] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[2]);
+            $result["success"] = true;
+        }
+        else
+            $waccArray = 0; $amortizationDurationArray = 0;
         dd($result);
         return view("tryCalculate")->with('data',$result);
     }

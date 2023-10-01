@@ -25,4 +25,5 @@ Route::get('tryCalculate', [SaveToolController::class, 'showSpesaEnergeticaPerHA
 Route::get('tryCalculate2', [SaveToolController::class, 'showImportoInvestimentoPerHA'])->name('savetool_try2');
 Route::get('tryCalculate3', [SaveToolController::class, 'showFlussiDiCassaPerPlant'])->name('savetool_try3');
 Route::get('tryCalculate4', [SaveToolController::class, 'showDebug'])->name('savetool_try4');
+Route::get('VanETir', [SaveToolController::class, 'calcoloVanETir'])->name('vanetir');
 
