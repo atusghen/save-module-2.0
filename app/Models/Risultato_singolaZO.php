@@ -62,9 +62,9 @@ class Risultato_singolaZO {
     }
 
     /**
-     * @param string $investment_amount
+     * @param float $investment_amount
      */
-    public function setInvestmentAmount(string $investment_amount): void
+    public function setInvestmentAmount(float $investment_amount): void
     {
         $this->investment_amount = $investment_amount;
     }
@@ -110,9 +110,9 @@ class Risultato_singolaZO {
     }
 
     /**
-     * @param string $incentive_revenue
+     * @param float $incentive_revenue
      */
-    public function setIncentiveRevenue(string $incentive_revenue): void
+    public function setIncentiveRevenue(float $incentive_revenue): void
     {
         $this->incentive_revenue = $incentive_revenue;
     }
@@ -128,7 +128,7 @@ class Risultato_singolaZO {
     /**
      * @param string $delta_energy_expenditure
      */
-    public function setDeltaEnergyExpenditure(string $delta_energy_expenditure): void
+    public function setDeltaEnergyExpenditure(float $delta_energy_expenditure): void
     {
         $this->delta_energy_expenditure = $delta_energy_expenditure;
     }
@@ -144,7 +144,7 @@ class Risultato_singolaZO {
     /**
      * @param string $delta_energy_consumption
      */
-    public function setDeltaEnergyConsumption(string $delta_energy_consumption): void
+    public function setDeltaEnergyConsumption(float $delta_energy_consumption): void
     {
         $this->delta_energy_consumption = $delta_energy_consumption;
     }
