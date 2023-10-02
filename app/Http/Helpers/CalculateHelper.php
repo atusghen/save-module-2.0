@@ -447,13 +447,10 @@ class CalculateHelper
         return $result;
     }
 
-    public static function calcoloCanoneMassimo($importoInvestimento, $investment){
+    public static function calcoloCanoneMassimo($plant, $importoInvestimento, $investment){
         $investimentoIniziale_comune = $importoInvestimento * ($investment["share_municipality"] / 100);
         $ammortamento_comune = $investimentoIniziale_comune / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
-        $canoneIniziale = ($investment_ESCO) / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
-
-        $ammortamento = $investimentoIniziale / $investment["project_duration"];
-        $result = ($canoneIniziale - $ammortamento * $investment["taxes"] / 100) / (1- $investment["taxes"] * 100);
+        $result = self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
 
         return $result;
     }
@@ -555,6 +552,8 @@ class CalculateHelper
         $result["financement"]["payback_time"] = self::calcoloPayBackTime($cashFlowTotale);
         //Calcola Canone Minimo
         $result["financement"]["fee_min"] = self::calcoloCanoneMinimo($cashFlowTotale[0], $investment);
+        //Calcola Canone Massimo
+        $result["financement"]["fee_max"] = self::calcoloCanoneMassimo($plant, $cashFlowTotale[0], $investment);
 
         return $result;
     }
