@@ -364,16 +364,13 @@ class CalculateHelper
         return $result;
     }
 
-    public static function calcoloTIRperImpianto($cashFlow, $amortization_override): ?float
+    public static function calcoloTIRperImpianto($cashFlow): ?float
     {
         $maxIterations = 100;
         $tolerance = 0.00001;
         $guess = 0.1;
 
-        if($amortization_override)
-            $count = $amortization_override;
-        else
-            $count = count($cashFlow);
+        $count = count($cashFlow);
 
         $positive = false;
         $negative = false;
@@ -393,14 +390,17 @@ class CalculateHelper
 
         for ($i = 0; $i < $maxIterations; $i++) {
             $npv = 0;
-            $dnpv = 0;
+            $dnpv = 0.00;
 
             for ($j = 0; $j < $count; $j++) {
                 $npv += $cashFlow[$j] / pow(1 + $guess, $j);
                 $dnpv -= $j * $cashFlow[$j] / pow(1 + $guess, $j + 1);
             }
 
-            $newGuess = $guess - $npv / $dnpv;
+            if($dnpv != 0)
+                $newGuess = $guess - ($npv / $dnpv);
+            else
+                return 0;
 
             if (abs($newGuess - $guess) < $tolerance) {
                 return $newGuess;
@@ -522,11 +522,12 @@ class CalculateHelper
     public static function calcoloFlussiDiCassaPerPlant($cashFlowPerHA){
 
         //calcolo totali
-        //calcolo cashflow totale per calcolo VAN, TIR e Payback
+        //iniziializzazione array
         for($j = 0; $j<count($cashFlowPerHA[0]->cash_flow); $j++){
             $cashFlowTotale[$j] = 0;
         }
 
+        //calcolo cashflow totale per calcolo VAN, TIR e Payback
         for($i = 0; $i<count($cashFlowPerHA); $i++){
             for($j = 0; $j<count($cashFlowPerHA[$i]->cash_flow); $j++){
                 $cashFlowTotale[$j] += $cashFlowPerHA[$i]->cash_flow[$j];
@@ -548,7 +549,7 @@ class CalculateHelper
         //calcolo sommatorie parametri dell'investimento
         //Calcola VAN e TIR
         $result["financement"]["van"] = self::calcoloVANperImpianto($cashFlowTotale, $investment["wacc"]);
-        $result["financement"]["tir"] = self::calcoloTIRperImpianto($cashFlowTotale, null);
+        $result["financement"]["tir"] = self::calcoloTIRperImpianto($cashFlowTotale);
 
         //Calcola Payback Time
         $result["financement"]["payback_time"] = self::calcoloPayBackTime($cashFlowTotale);

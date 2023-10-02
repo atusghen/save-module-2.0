@@ -77,12 +77,13 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
+//127.0.0.1:8000/VanETir?plantId=1&investmentId=1&wacc[]=3&wacc[]=5&wacc[]=7&amortization_duration[]=12&amortization_duration[]=24&amortization_duration[]=36
     public function calcoloVanETir(Request $request, $id_crypted = null){
         $result = []; $result["success"] = false; $result["data"] = [];
-        if($request->has('wacc') && $request->has('amortization_duration'))
+        if($request->has('wacc') && $request->has('amortization_duration') && $request->has('plantId') && $request->has('investmentId'))
         {
-            $plant["id"] = 2;
-            $investment = (SaveToolController::getInvestmentById(1)["investment"]);
+            $plant = SaveToolController::getPlantById($request->plantId)["plant"];
+            $investment = (SaveToolController::getInvestmentById($request->investmentId)["investment"]);
             $amortizationDurationArray = [$request->amortization_duration[0], $request->amortization_duration[1], $request->amortization_duration[2]];
             $waccArray = [$request->wacc[0], $request->wacc[1], $request->wacc[2]];
 
@@ -93,6 +94,10 @@ class SaveToolController extends Controller
             $flussiDiCassaTotali1 =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa1);
             $flussiDiCassaTotali2 =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa2);
             $flussiDiCassaTotali3 =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa3);
+
+            $result["data"]["tir"][0] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali1);
+            $result["data"]["tir"][1] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali2);
+            $result["data"]["tir"][2] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali3);
 
             $result["data"]["van"][0][0] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali1, $waccArray[0]);
             $result["data"]["van"][0][1] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali1, $waccArray[1]);
@@ -106,9 +111,6 @@ class SaveToolController extends Controller
             $result["data"]["van"][2][1] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali3, $waccArray[1]);
             $result["data"]["van"][2][2] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali3, $waccArray[2]);
 
- //           $result["data"]["tir"][0] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[0]);
-//            $result["data"]["tir"][1] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[1]);
-//            $result["data"]["tir"][2] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali, $amortizationDurationArray[2]);
             $result["success"] = true;
         }
         else
