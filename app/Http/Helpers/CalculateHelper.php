@@ -503,7 +503,7 @@ class CalculateHelper
             $result[$i]->tobe_maintenance_cost = array_sum($result_tobe_infrastructure_cost) + array_sum($result_tobe_lamp_cost);
 
             //Calcola flussi di cassa annuali
-            $result[$i]->cash_flow[0] = $result[$i]->getInvestmentAmount();
+            $result[$i]->cash_flow[0] = - $result[$i]->getInvestmentAmount();
             for($j = 1; $j <= $durationAmortization; $j++) {
                 //costo
                 $result[$i]->cash_flow[$j] = $result[$i]->getDeltaEnergyConsumption() + $result[$i]->getIncentiveRevenue()
