@@ -364,13 +364,15 @@ class CalculateHelper
         return $result;
     }
 
-    public static function calcoloTIRperImpianto($cashFlow): ?float
+    public static function calcoloTIRperImpianto($cashFlow, $investment_amount): ?float
     {
         $maxIterations = 100;
         $tolerance = 0.00001;
         $guess = 0.1;
 
         $count = count($cashFlow);
+
+        $cashFlow[0] = $investment_amount;
 
         $positive = false;
         $negative = false;
@@ -516,23 +518,72 @@ class CalculateHelper
         return $result;
     }
 
-    public static function calcoloFlussiDiCassaPerPlant($cashFlowPerHA){
+    public static function calcoloFlussiDiCassaPerPlant($risultatoSingolaZO){
 
         //calcolo totali
         //iniziializzazione array
-        for($j = 0; $j<count($cashFlowPerHA[0]->cash_flow); $j++){
+        for($j = 0; $j<count($risultatoSingolaZO[0]->cash_flow); $j++) {
             $cashFlowTotale[$j] = 0;
         }
 
         //calcolo cashflow totale per calcolo VAN, TIR e Payback
-        for($i = 0; $i<count($cashFlowPerHA); $i++){
-            for($j = 0; $j<count($cashFlowPerHA[$i]->cash_flow); $j++){
-                $cashFlowTotale[$j] += $cashFlowPerHA[$i]->cash_flow[$j];
+        for($i = 0; $i<count($risultatoSingolaZO); $i++){
+            for($j = 0; $j<count($risultatoSingolaZO[$i]->cash_flow); $j++){
+                $cashFlowTotale[$j] += $risultatoSingolaZO[$i]->cash_flow[$j];
             }
         }
 
         return $cashFlowTotale;
     }
+
+    public static function calcolaImportoInvestimentoPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getInvestmentAmount();
+        }
+        return $result;
+    }
+
+    public static function calcolaCostiManutezioneASISPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getAsisMaintenanceCost();
+        }
+        return $result;
+    }
+
+    public static function calcolaCostiManutezioneTOBEPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getTobeMaintenanceCost();
+        }
+        return $result;
+    }
+
+    public static function calcolaContibutoIncentiviPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getIncentiveRevenue();
+        }
+        return $result;
+    }
+
+    public static function calcolaDeltaSpesaEnergeticaPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getDeltaEnergyExpenditure();
+        }
+        return $result;
+    }
+
+    public static function calcolaDeltaConsumoEnergeticoPerPlant($risultatiSingolaZO){
+        $result = 0;
+        for($i = 0; $i<count($risultatiSingolaZO); $i++){
+            $result += $risultatiSingolaZO[$i]->getDeltaEnergyConsumption();
+        }
+        return $result;
+    }
+
 
 
     public static function calcoloPilota($plant, $investment){
@@ -542,11 +593,17 @@ class CalculateHelper
         //calcolo totali
         $cashFlowTotale = self::calcoloFlussiDiCassaPerPlant($result["plants"]);
         $result["total"]["cash_flow"] = $cashFlowTotale;
+        $result["total"]["investment_amount"] = self::calcolaImportoInvestimentoPerPlant($result["plants"]);
+        $result["total"]["asis_maintenance_cost"] = self::calcolaCostiManutezioneASISPerPlant($result["plants"]);
+        $result["total"]["tobe_maintenance_cost"] = self::calcolaCostiManutezioneTOBEPerPlant($result["plants"]);
+        $result["total"]["incentive_revenue"] = self::calcolaContibutoIncentiviPerPlant($result["plants"]);
+        $result["total"]["delta_energy_expenditure"] = self::calcolaDeltaSpesaEnergeticaPerPlant($result["plants"]);
+        $result["total"]["delta_energy_consumption"] = self::calcolaDeltaConsumoEnergeticoPerPlant($result["plants"]);
 
         //calcolo sommatorie parametri dell'investimento
         //Calcola VAN e TIR
         $result["financement"]["van"] = self::calcoloVANperImpianto($cashFlowTotale, $investment["wacc"]);
-        $result["financement"]["tir"] = self::calcoloTIRperImpianto($cashFlowTotale);
+        $result["financement"]["tir"] = self::calcoloTIRperImpianto($cashFlowTotale, $result["total"]["investment_amount"]);
 
         //Calcola Payback Time
         $result["financement"]["payback_time"] = self::calcoloPayBackTime($cashFlowTotale);

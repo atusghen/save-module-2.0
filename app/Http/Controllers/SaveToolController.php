@@ -40,9 +40,11 @@ class SaveToolController extends Controller
 
     public function showFlussiDiCassaPerPlant(Request $request, $id_crypted = null){
 
-        $plant["id"] = 2;
-        $investment = (SaveToolController::getInvestmentById(1)["investment"]);
-        $result =  CalculateHelper::calcoloFlussiDiCassaPerPlant($plant, $investment);
+        $plant = SaveToolController::getPlantById(2)["plant"];
+        $investment = (SaveToolController::getInvestmentById(1)["investment"]);+
+
+        $flussoDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null);
+        $result =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa);
         dd($result);  //eliminato con la view
         return view("tryCalculate")->with('data',$result);
     }
@@ -88,16 +90,21 @@ class SaveToolController extends Controller
             for ($i = 0; $i < count($request->amortization_duration); $i++) {
                 $flussoDiCassa[$i] = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, $request->amortization_duration[$i]);
                 $flussiDiCassaTotali[$i] =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa[$i]);
+                $investment_amount = CalculateHelper::calcolaImportoInvestimentoPerPlant($flussoDiCassa[$i]);
+
                 for ($j = 0; $j < count($request->wacc); $j++) {
                     $result["data"]["van"][$i][$j] = CalculateHelper::calcoloVANperImpianto($flussiDiCassaTotali[$i], $request->wacc[$j]);
                 }
-                $result["data"]["tir"][$i] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali[$i]);
+                $result["data"]["tir"][$i] = CalculateHelper::calcoloTIRperImpianto($flussiDiCassaTotali[$i], $investment_amount);
             }
 
             $result["success"] = true;
         }
         else
+        {
             $result["data"]["van"] = 0; $result["data"]["tir"] = 0;
+        }
+
         dd($result);
         return view("tryCalculate")->with('data',$result);
     }
