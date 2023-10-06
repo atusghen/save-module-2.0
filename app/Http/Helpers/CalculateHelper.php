@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\SaveToolController;
 use App\Models\Risultato_singolaZO;
 use Illuminate\Http\Request;
+use MathPHP;
 
 class CalculateHelper
 {
@@ -172,61 +173,6 @@ class CalculateHelper
         });
 
     }
-
-
-    /**
-     * Calcola incentivi statali per impianto
-     *
-     * @input delta_consumo_energetico from calcoloDeltaConsumoEnergeticoPerImpianto($plant)
-     * @input $investments(tep_kwh)
-     * @input $investments(tep_value)
-     * NO-> @input $investments(incentives_duration)
-     * ricavo_incentivi = delta_consumo_energetico / kWH_TEP * valore_monetario_TEP
-     * */
-
-    public static function calcolaIncentiviStataliPerImpiantoAndInvestimento($plant, $investment)
-    {
-        $deltaImpianto = CalculateHelper::calcoloDeltaConsumoEnergeticoPerImpianto($plant, $investment);
-        $parametriInvestimento = SaveToolController::getInvestmentById($investment["id"])["investment"];
-        return $deltaImpianto / $parametriInvestimento["tep_kwh"] * $parametriInvestimento["tep_value"];
-    }
-
-    /**
-     * Calcolo Costi/benefici annuali in consumoi energetica come Delta tra
-     * la sommatoria delle ZO AS-IS e TO-BE
-     * il risultato è UN AGGREGATO di tutte le ZO (e non un array con i singoli delta)
-     *
-     * @input $plant
-     * @input calcoloSpesaEnergeticoPerHa($has)
-     * */
-    public static function calcoloDeltaConsumoEnergeticoPerImpianto($plant, $investment){
-        $data = SaveToolController::getHasByPlantId($plant["id"]);
-        $energyCost = (SaveToolController::getEnergyUnitCostForInvestment($investment["id"]))["energy_unit_cost"];
-
-        //calcolo il consumo energetico delle HA AS-IS
-        $arrayASIS = $data["dataAsIs"];
-        $arrayTOBE = $data["dataToBe"];
-        $result = 0;
-        for ($i = 0; $i < count($arrayASIS); $i++) {
-            //per ogni $haASIS
-            $haASIS = $arrayASIS[$i];
-
-            //cerco la HA TOBE associata
-            $haTOBE = collect($arrayTOBE)->filter(function ($single) use ($haASIS) {
-                return $single["ref_has_is_id_ha"] == $haASIS["id"];
-            })->first();
-
-            //prendo tutte le ZO AS-IS, sommatoria CU e calcolo - prendo solo la TO-BE associata e sottraggo
-            $value = CalculateHelper::calcoloConsumoEnergeticoPerHaASIS($haASIS) - CalculateHelper::calcoloConsumoEnergeticoPerHaTOBE($haTOBE);
-
-            //sommo per aggregare i risultati
-            $result += $value;
-        }
-
-        //restituisco il risultato
-        return $result;
-    }
-
     /**
      * Calcolo Costi/benefici annuali in spesa energetica come Delta tra
      * la sommatoria delle ZO AS-IS e TO-BE
@@ -311,57 +257,24 @@ class CalculateHelper
         return ($ha["lamp_cost"] + $ha["lamp_disposal"]) * CalculateHelper::calcolaTotaleLampadePerHA($ha);
     }
 
-    /**
-     * calcola i costi di manutenzione dell'impianto ToBe restituendo un risultato per ogni HA
-     * @output come array
-     *
-     * @input $has(lamp_cost)
-     * @input $has(lamp_disposal)
-     * @input calcolaTotaleLampadePerHA($ha)
-     * */
-
-    public static function calcolaCostiManutenzioneToBe($plant){
-        $hasAsIs = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
-        $result = [];
-        for ($i = 0; $i < count($hasAsIs); $i++){
-            $ha = $hasAsIs[$i];
-            $result[$i] = CalculateHelper::calcolaCostiManutezionePerHA($ha);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * calcola i costi dell'infrastruttura TOBE
-     * @input $has(infrastructure_maintenance_cost)
-     * @input calcolaTotaleLampadePerHA($ha)
-     * */
-
-    public static function calcolaCostoManutenzioneInfrastrutturaToBe($plant){
-        $hasAsIs = SaveToolController::getHasByPlantId($plant["id"])["dataToBe"];
-        $result = [];
-        for ($i = 0; $i < count($hasAsIs); $i++){
-            $ha = $hasAsIs[$i];
-            $result[$i] = CalculateHelper::calcolaCostoManutenzioneInfrastrutturaPerHA($ha);
-        }
-        return $result;
-    }
 
     public static function calcolaCostoManutenzioneInfrastrutturaPerHA($ha){
         return $ha["infrastructure_maintenance_cost"] * CalculateHelper::calcolaTotaleLampadePerHA($ha);
     }
 
 
-
-    public static function calcoloVANperImpianto($cashFlow, $wacc): float
+    public static function calcoloVANperImpianto($cashFlow, $wacc, $round = 3): float
     {
-        $result = 0;
-        for($i=0; $i<count($cashFlow); $i++){
-            $result += ($cashFlow[$i]/(1+$wacc)^$i);
-        }
 
-        return $result;
+        $wacc_absolute = (float)$wacc / 100;
+
+        $result = 0;
+        $totVal = count($cashFlow);
+
+        for ($i = 0; $i < $totVal; $i++) {
+            $result += $cashFlow[$i] / ((1 + $wacc_absolute)**$i);
+        }
+        return round ( $result, $round);
     }
 
     public static function calcoloTIRperImpianto($cashFlow, $investment_amount): ?float
@@ -414,47 +327,53 @@ class CalculateHelper
         return $guess;
     }
 
-    public static function calcoloPayBackTime($flussoDiCassaTotale){
-        $payBacktime = 0;
-        $flussoCumulativo[0] = $flussoDiCassaTotale[0];
+    public static function calcoloPayBackTime($flussoDiCassaTotale, $durata_ammortamento){
+        $payback_time = 0;
+        $flusso_cumulativo[0] = $flussoDiCassaTotale[0];
 
-        for($i = 1; $i < count($flussoDiCassaTotale); $i++){
-            $flussoCumulativo[$i] = $flussoDiCassaTotale[$i] + $flussoCumulativo[$i-1];
+        /*
+         * calcolo flusso cumulativo
+         */
+        for ($i = 1; $i < $durata_ammortamento + 1; $i++) {
+            $flusso_cumulativo[$i] = $flussoDiCassaTotale[$i] + $flusso_cumulativo[$i - 1];
         }
 
-        for($j = count($flussoDiCassaTotale) - 2; $j > 0; $j--){
-            if($flussoCumulativo[$j] < 0){
-                $payBacktime = $j;
+        /*
+         * ultimo flusso di cassa cumulativo negativo
+         */
+        for ($i = $durata_ammortamento + 1; $i > 0; $i--) {
+            if (isset($flusso_cumulativo[$i])) {
+                if ($flusso_cumulativo[$i] < 0) {
+                    $payback_time = $i;
+                    break;
+                }
             }
         }
 
-        if($payBacktime > 0)
-        {
-            $payBacktime += abs($flussoDiCassaTotale[$j+1])/$flussoCumulativo[$j];
-        }else{
-            return null;
-        }
+        if ($payback_time > 0 && isset($flussoDiCassaTotale[$payback_time + 1]) && (int)$flussoDiCassaTotale[$payback_time + 1] !== 0) {
+            $payback_time += (abs($flussoDiCassaTotale[$payback_time + 1]) / $flusso_cumulativo[$payback_time]);
+        } else
+        {$payback_time = 0;}
 
-        return $payBacktime;
+        return $payback_time;
     }
 
     public static function calcoloCanoneMinimo($importoInvestimento, $investment){
+        $wacc_absolute = (float)$investment["wacc"] / 100;
         $investment_ESCO = $importoInvestimento * ($investment["share_esco"]/100);
-        $canoneIniziale = ($investment_ESCO) / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
-        $investimentoIniziale = $importoInvestimento + $canoneIniziale;
+        $canoneIniziale = ($investment_ESCO) / ((1-(1+$wacc_absolute)**(-$investment["project_duration"])) /$wacc_absolute);
 
-        $ammortamento = $investimentoIniziale / $investment["project_duration"];
-        $result = ($canoneIniziale - $ammortamento * $investment["taxes"] / 100) / (1- $investment["taxes"] * 100);
+        $ammortamento = $investment_ESCO / $investment["project_duration"];
+        $result = ($canoneIniziale - $ammortamento * $investment["taxes"] / 100) / (1- $investment["taxes"] / 100);
 
         return $result;
     }
 
     public static function calcoloCanoneMassimo($plant, $importoInvestimento, $investment){
+        $wacc_absolute = (float)$investment["wacc"] / 100;
         $investimentoIniziale_comune = $importoInvestimento * ($investment["share_municipality"] / 100);
-        $ammortamento_comune = $investimentoIniziale_comune / ((1-(1+$investment["WACC"])^(-$investment["project_duration"])) /$investment["wacc"]);
-        $result = self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
-
-        return $result;
+        $ammortamento_comune = $investimentoIniziale_comune / ((1-(1+$wacc_absolute)**(-$investment["project_duration"])) /$wacc_absolute);
+        return self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
     }
 
     public static function calcoloFlussiDiCassaPerHA($plant, $investment, $durationAmortization_override) {
@@ -606,11 +525,11 @@ class CalculateHelper
         $result["financement"]["tir"] = self::calcoloTIRperImpianto($cashFlowTotale, $result["total"]["investment_amount"]);
 
         //Calcola Payback Time
-        $result["financement"]["payback_time"] = self::calcoloPayBackTime($cashFlowTotale);
+        $result["financement"]["payback_time"] = self::calcoloPayBackTime($cashFlowTotale, $investment["duration_amortization"]);
         //Calcola Canone Minimo
-        $result["financement"]["fee_min"] = self::calcoloCanoneMinimo($cashFlowTotale[0], $investment);
+        $result["financement"]["fee_min"] = self::calcoloCanoneMinimo($result["total"]["investment_amount"], $investment);
         //Calcola Canone Massimo
-        $result["financement"]["fee_max"] = self::calcoloCanoneMassimo($plant, $cashFlowTotale[0], $investment);
+        $result["financement"]["fee_max"] = self::calcoloCanoneMassimo($plant, $result["total"]["investment_amount"], $investment);
 
         return $result;
     }

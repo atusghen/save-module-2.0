@@ -19,11 +19,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('plants', [SaveToolController::class, 'readPlantsView'])->name('savetool_read_view_plants');
-Route::get('has', [SaveToolController::class, 'readHasView'])->name('savetool_read_view_has');
-Route::get('tryCalculate', [SaveToolController::class, 'showSpesaEnergeticaPerHA'])->name('savetool_try');
-Route::get('tryCalculate2', [SaveToolController::class, 'showImportoInvestimentoPerHA'])->name('savetool_try2');
-Route::get('tryCalculate3', [SaveToolController::class, 'showFlussiDiCassaPerPlant'])->name('savetool_try3');
-Route::get('tryCalculate4', [SaveToolController::class, 'showDebug'])->name('savetool_try4');
+Route::get('flussiDiCassa', [SaveToolController::class, 'showFlussiDiCassaPerPlant'])->name('flussidicassa');
+Route::get('CalcoloImpianto', [SaveToolController::class, 'showCalcoloImpianto'])->name('calcoloimpianto');
 Route::get('VanETir', [SaveToolController::class, 'calcoloVanETir'])->name('vanetir');
 

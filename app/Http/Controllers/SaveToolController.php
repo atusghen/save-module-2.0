@@ -24,20 +24,6 @@ class SaveToolController extends Controller
     /// Utility methods (debug)
     ///////////////////////////////////////////
 
-    public function readHasView(Request $request, $id_crypted = null){
-        $data["fields"] = config("save");
-        $data["has"] = SaveToolController::getHasByPlantId(3);
-        dd($data["has"]);
-        return view("has")->with('data', $data);
-    }
-
-    public function readPlantsView(Request $request, $id_crypted = null){
-        $data["fields"] = config("save");
-        $data["plants"] = SaveToolController::getPlantsByUser(3);
-        dd($data["plants"]);
-        return view("plants")->with('data', $data);
-    }
-
     public function showFlussiDiCassaPerPlant(Request $request, $id_crypted = null){
 
         $plant = SaveToolController::getPlantById(2)["plant"];
@@ -49,34 +35,19 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
-    public function showImportoInvestimentoPerHA(Request $request, $id_crypted = null){
+////127.0.0.1:8000/CalcoloImpianto?plantId=1&investmentId=1
+    public function showCalcoloImpianto(Request $request, $id_crypted = null){
+        if( $request->has('plantId') && $request->has('investmentId'))
+        {
+            $plant = SaveToolController::getPlantById($request->plantId)["plant"];
+            $investment = (SaveToolController::getInvestmentById($request->investmentId)["investment"]);
+            $result = CalculateHelper::calcoloPilota($plant, $investment);
+            echo json_encode($result);
+            dd($result);
+            return view("tryCalculate")->with('data',$result);
 
-        $data = SaveToolController::getHasByPlantId(1);
-        $result =  CalculateHelper::calcolaImportoInvestimentoPerHA($data["dataToBe"][0]);
-        //dump($result);  eliminato con la view
-        return view("tryCalculate")->with('data',$result);
-    }
+        }
 
-    public function showSpesaEnergeticaPerHA(Request $request, $id_crypted = null){
-        //$data["fields"] = config("save");
-
-        $has = SaveToolController::getHasByPlantId(1);
-
-        //recupero il parametro dall'investimento selezionato
-        $energyCost = (SaveToolController::getEnergyUnitCostForInvestment(1))["energy_unit_cost"];
-        $result = CalculateHelper::calcoloSpesaEnergeticaPerHa(($has["dataToBe"])[0], $energyCost);
-        //$result2 = CalculateController::calcoloConsumoEnergeticoPerHa($data["payload"]["clusters"]);
-        //dump($energyCost);   //si può usare al posto di dd e consente l'esecuzione del resto dello script, ma ha bisogno di una view Associata?
-        return view("tryCalculate")->with('data',$result);
-    }
-
-    public function showDebug(Request $request, $id_crypted = null){
-        $plant = SaveToolController::getPlantById(1)["plant"];
-        $investment = (SaveToolController::getInvestmentById(1)["investment"]);
-        $result = CalculateHelper::calcoloPilota($plant, $investment);
-        echo json_encode($result);
-        dd($result);
-        return view("tryCalculate")->with('data',$result);
     }
 
 //127.0.0.1:8000/VanETir?plantId=1&investmentId=1&wacc[]=3&wacc[]=5&wacc[]=7&amortization_duration[]=12&amortization_duration[]=24&amortization_duration[]=36
