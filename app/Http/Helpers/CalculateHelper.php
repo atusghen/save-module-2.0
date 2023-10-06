@@ -409,7 +409,9 @@ class CalculateHelper
             CalculateHelper::calcoloDeltaSpesaEnergeticaPerHAS($haASIS, $haTOBE, $energyCost,$result);
 
             //Calcola incentivi statali
-            $result[$i]->setIncentiveRevenue($result[$i]->getDeltaEnergyConsumption() / $investment["tep_kwh"] * $investment["tep_value"]);
+            $result[$i]->setIncentiveRevenue(
+                ($result[$i]->getDeltaEnergyConsumption() > 0)?
+                ($result[$i]->getDeltaEnergyConsumption() / $investment["tep_kwh"]) * $investment["tep_value"] : 0);
 
             //Calcola costi manutenzione
             //calcolo flussi e totale costo manutenzione ASIS e TOBE
@@ -427,10 +429,14 @@ class CalculateHelper
             $result[$i]->cash_flow[0] = - $result[$i]->getInvestmentAmount();
             for($j = 1; $j <= $durationAmortization; $j++) {
                 //costo
-                $result[$i]->cash_flow[$j] = $result[$i]->getDeltaEnergyConsumption() + $result[$i]->getIncentiveRevenue()
+                $result[$i]->cash_flow[$j] = $result[$i]->getDeltaEnergyExpenditure()
                     + $result_asis_maintenance_cost[$j] - $investment["mortgage_installment"]
                     - $investment["fee_esco"] - $result_tobe_lamp_cost[$j]
                     - $result_tobe_infrastructure_cost[$j] - $investment["management_cost"];
+            }
+
+            for($j = 1; $j <= $investment["incentives_duration"]; $j++){
+                $result[$i]->cash_flow[$j] += $result[$i]->getIncentiveRevenue();
             }
         }
 
