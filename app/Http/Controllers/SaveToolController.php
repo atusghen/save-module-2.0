@@ -29,7 +29,7 @@ class SaveToolController extends Controller
         $plant = SaveToolController::getPlantById(2)["plant"];
         $investment = (SaveToolController::getInvestmentById(1)["investment"]);+
 
-        $flussoDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null);
+        $flussoDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null, null);
         $result =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa);
         dd($result);  //eliminato con la view
         return view("tryCalculate")->with('data',$result);
@@ -59,7 +59,7 @@ class SaveToolController extends Controller
             $investment = (SaveToolController::getInvestmentById($request->investmentId)["investment"]);
 
             for ($i = 0; $i < count($request->amortization_duration); $i++) {
-                $flussoDiCassa[$i] = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, $request->amortization_duration[$i]);
+                $flussoDiCassa[$i] = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, $request->amortization_duration[$i], null);
                 $flussiDiCassaTotali[$i] =  CalculateHelper::calcoloFlussiDiCassaPerPlant($flussoDiCassa[$i]);
                 $investment_amount = CalculateHelper::calcolaImportoInvestimentoPerPlant($flussoDiCassa[$i]);
 
@@ -75,6 +75,41 @@ class SaveToolController extends Controller
         {
             $result["data"]["van"] = 0; $result["data"]["tir"] = 0;
         }
+
+        dd($result);
+        return view("tryCalculate")->with('data',$result);
+    }
+
+    //127.0.0.1:8000/PayBack?plantId=1&investmentId=1&min_energy_cost=0.1&max_energy_cost=0.28
+    public function calcoloPaybackMinEMax(Request $request, $id_crypted = null){
+        $result = []; $result["success"] = false; $result["data"] = [];
+
+
+        if($request->has('min_energy_cost') && $request->has('max_energy_cost') && $request->has('plantId') && $request->has('investmentId')) {
+            $plant = SaveToolController::getPlantById($request->plantId)["plant"];
+            $investment = (SaveToolController::getInvestmentById($request->investmentId)["investment"]);
+
+            $min_energy_cost = $request->min_energy_cost;
+            $max_energy_cost = $request->max_energy_cost;
+            $delta_energy = $max_energy_cost - $min_energy_cost;
+
+            $flussiDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null, null);
+
+            //calcolo totali
+            $cashFlowTotale = CalculateHelper::calcoloFlussiDiCassaPerPlant($flussiDiCassa);
+
+            for($j = 0; $j < 11; $j++){
+                $result["data"][$j] = array($min_energy_cost + ($delta_energy / 10) * $j, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment->amortization_duration));
+            }
+
+            $result["success"] = true;
+        }
+        else
+        {
+            $result["data"] = 0;
+        }
+
+        echo json_encode($result);
 
         dd($result);
         return view("tryCalculate")->with('data',$result);

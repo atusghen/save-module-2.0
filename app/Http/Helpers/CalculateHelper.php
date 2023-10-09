@@ -376,12 +376,18 @@ class CalculateHelper
         return self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
     }
 
-    public static function calcoloFlussiDiCassaPerHA($plant, $investment, $durationAmortization_override) {
+    public static function calcoloFlussiDiCassaPerHA($plant, $investment, $durationAmortization_override, $energy_unit_cost_override) {
         $has = SaveToolController::getHasByPlantId($plant["id"]);
         //creazione array delle HAS
         $arrayASIS = $has["dataAsIs"];
         $arrayTOBE = $has["dataToBe"];
-        $energyCost = (SaveToolController::getEnergyUnitCostForInvestment($investment["id"]))["energy_unit_cost"];
+
+
+        if($energy_unit_cost_override)
+            $energyCost = $energy_unit_cost_override;
+        else
+            //prendo il costo unitario dell'energia per l'investimento (inserito dall'utente
+            $energyCost = (SaveToolController::getEnergyUnitCostForInvestment($investment["id"]))["energy_unit_cost"];
 
         for ($i = 0; $i < count($arrayASIS); $i++){
             //inizializzazione oggetto di output
@@ -406,7 +412,7 @@ class CalculateHelper
             //Calcola costi/benefici annuali in consumo energetico
             CalculateHelper::calcoloDeltaConsumoEnergeticoPerHAS($haASIS, $haTOBE, $result);
             //Calcola costi/benefici annuali in spesa energetica
-            CalculateHelper::calcoloDeltaSpesaEnergeticaPerHAS($haASIS, $haTOBE, $energyCost,$result);
+            CalculateHelper::calcoloDeltaSpesaEnergeticaPerHAS($haASIS, $haTOBE, $energyCost, $result);
 
             //Calcola incentivi statali
             $result[$i]->setIncentiveRevenue(
@@ -513,7 +519,7 @@ class CalculateHelper
 
     public static function calcoloPilota($plant, $investment){
         $result["municipality"] = $plant["label_plant"];
-        $result["plants"] = self::calcoloFlussiDiCassaPerHA($plant, $investment, null);
+        $result["plants"] = self::calcoloFlussiDiCassaPerHA($plant, $investment, null, null);
 
         //calcolo totali
         $cashFlowTotale = self::calcoloFlussiDiCassaPerPlant($result["plants"]);
