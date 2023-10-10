@@ -93,13 +93,14 @@ class SaveToolController extends Controller
             $max_energy_cost = $request->max_energy_cost;
             $delta_energy = $max_energy_cost - $min_energy_cost;
 
-            $flussiDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null, null);
-
-            //calcolo totali
-            $cashFlowTotale = CalculateHelper::calcoloFlussiDiCassaPerPlant($flussiDiCassa);
-
             for($j = 0; $j < 11; $j++){
-                $result["data"][$j] = array($min_energy_cost + ($delta_energy / 10) * $j, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment->amortization_duration));
+                $iter_energy_unit_cost = $min_energy_cost + ($delta_energy / 10) * $j;
+
+                $flussiDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null, $iter_energy_unit_cost);
+
+                $cashFlowTotale = CalculateHelper::calcoloFlussiDiCassaPerPlant($flussiDiCassa);
+
+                $result["data"][$j] = array($iter_energy_unit_cost, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment->amortization_duration));
             }
 
             $result["success"] = true;
