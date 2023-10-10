@@ -23,4 +23,5 @@ Route::get('flussiDiCassa', [SaveToolController::class, 'showFlussiDiCassaPerPla
 Route::get('CalcoloImpianto', [SaveToolController::class, 'showCalcoloImpianto'])->name('calcoloimpianto');
 Route::get('VanETir', [SaveToolController::class, 'calcoloVanETir'])->name('vanetir');
 Route::get('PayBack', [SaveToolController::class, 'calcoloPaybackMinEMax'])->name('payback');
+Route::get('calcolaAltreModalita', [SaveToolController::class, 'calcolaAltreModalità'])->name('altro');
 

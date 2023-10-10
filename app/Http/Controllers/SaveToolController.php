@@ -80,7 +80,7 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
-    //127.0.0.1:8000/PayBack?plantId=1&investmentId=1&min_energy_cost=0.1&max_energy_cost=0.28
+//127.0.0.1:8000/PayBack?plantId=1&investmentId=1&min_energy_cost=0.1&max_energy_cost=0.28
     public function calcoloPaybackMinEMax(Request $request, $id_crypted = null){
         $result = []; $result["success"] = false; $result["data"] = [];
 
@@ -116,7 +116,37 @@ class SaveToolController extends Controller
         return view("tryCalculate")->with('data',$result);
     }
 
+//127.0.0.1:8000/calcolaAltreModalita?plantId=1&investmentId=1&min_fee_duration=12&max_fee_duration=33&taxes=35.78&financed_quote=75.90
+    public function calcolaAltreModalità(Request $request, $id_crypted = null){
+        $result = []; $result["success"] = false; $result["data"] = [];
 
+        if($request->has('plantId') && $request->has('investmentId') && $request->has('min_fee_duration') && $request->has('max_fee_duration') && $request->has('taxes') && $request->has('financed_quote')) {
+            $plant = SaveToolController::getPlantById($request->plantId)["plant"];
+            $investment = (SaveToolController::getInvestmentById($request->investmentId)["investment"]);
+
+            $importoInvestimento = CalculateHelper::calcoloImportoInvestimentoPerPlant($plant, $request->financed_quote);
+
+            $result["data"] = [];  $result["data"]["fee_min"] = [];
+            $count = 0;
+
+            for($i = floatval($request->min_fee_duration); $i <= floatval($request->max_fee_duration) + 0.001; $i += floatval(($request->max_fee_duration - $request->min_fee_duration) / 10) )
+            {
+                if($i + floatval(($request->max_fee_duration - $request->min_fee_duration) / 10) > floatval($request->max_fee_duration) + 0.001){
+                    $i = $request->max_fee_duration;
+                }
+                $result["data"]["fee_min"][$count] = array(intval($i), CalculateHelper::calcoloCanoneMinimo($importoInvestimento, $investment, intval($i), $request->taxes, $request->financed_quote));
+                $result["data"]["fee_max"][$count] = array(intval($i), CalculateHelper::calcoloCanoneMassimo($plant, $importoInvestimento, $investment, intval($i), $request->financed_quote));
+                $count++;
+            }
+
+            $result["success"] = true;
+        }
+
+        echo json_encode($result);
+
+        dd($result);
+        return view("tryCalculate")->with('data',$result);
+    }
 
     ////////////////////////////////////////////////
     /// CRUD Methods
