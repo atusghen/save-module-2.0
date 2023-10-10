@@ -30,7 +30,7 @@ class SaveHA extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        "plant_id","label_ha","type_ha","ref_has_is_id_ha", "is_ready","lamp_cost","lamp_disposal","maintenance_interval","panel_cost"
+        "plant_id","label_ha","type_ha","ref_as_is_id_ha", "is_ready","lamp_cost","lamp_disposal","maintenance_interval","panel_cost"
     ];
 
     /**

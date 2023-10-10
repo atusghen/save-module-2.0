@@ -197,7 +197,7 @@ class CalculateHelper
 
             //cerco la HA TOBE associata
             $haTOBE = collect($arrayTOBE)->filter(function ($single) use ($haASIS) {
-                return $single["ref_has_is_id_ha"] == $haASIS["id"];
+                return $single["ref_as_is_id_ha"] == $haASIS["id"];
             })->first();
 
             //prendo tutte le ZO AS-IS, sommatoria CU e calcolo - prendo solo la TO-BE associata e sottraggo
@@ -423,7 +423,7 @@ class CalculateHelper
 
             //getting TOBE associata
             $haTOBE = collect($arrayTOBE)->filter(function ($single) use ($haASIS) {
-                return $single["ref_has_is_id_ha"] == $haASIS["id"];
+                return $single["ref_as_is_id_ha"] == $haASIS["id"];
             })->first();
 
             $result[$i]->setTobeName($haTOBE["label_ha"]);
