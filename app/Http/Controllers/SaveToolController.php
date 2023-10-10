@@ -100,7 +100,7 @@ class SaveToolController extends Controller
 
                 $cashFlowTotale = CalculateHelper::calcoloFlussiDiCassaPerPlant($flussiDiCassa);
 
-                $result["data"][$j] = array($iter_energy_unit_cost, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment->amortization_duration));
+                $result["data"][$j] = array($iter_energy_unit_cost, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment["duration_amortization"]));
             }
 
             $result["success"] = true;

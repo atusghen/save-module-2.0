@@ -78,7 +78,7 @@ return [
         ],
         [
             [
-                "name"      => "maintenance_interval",
+                "name"      => "lamp_maintenance_interval",
                 "width"     => 6,
                 "type"      => "number",
                 "disabled"  => false,

@@ -55,7 +55,7 @@ return [
             "type" => "Tipo",
             "lamp_cost" => "Costo Lampada",
             "lamp_disposal" => "Costo smaltimento Lampada",
-            "maintenance_interval" => "Intervallo manutenzione",
+            "lamp_lamp_maintenance_interval" => "Intervallo manutenzione",
             "panel_cost" => "Costo Quadro",
 
             "table_clusters" => "Tabella Cluster",

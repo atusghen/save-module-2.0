@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `save_has` (
   `type` varchar(4) DEFAULT NULL,
   `lamp_cost` decimal(10,2) DEFAULT NULL,
   `lamp_disposal` decimal(10,2) DEFAULT NULL,
-  `maintenance_interval` int(11) DEFAULT NULL,
+  `lamp_maintenance_interval` int(11) DEFAULT NULL,
   `panel_cost` decimal(10,2) DEFAULT NULL,
   `create_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL,
