@@ -40,6 +40,19 @@ class CalculateHelper
         return $sommaParziale;
     }
 
+    public static function calcoloImportoInvestimentoPerPlant($plant, $financedQuote)
+    {
+        $has = SaveToolController::getHasByPlantId($plant["id"]);
+        //creazione array delle HAS
+        $arrayTOBE = $has["dataToBe"];
+        $result = 0;
+        for ($i = 0; $i < count($arrayTOBE); $i++){
+            $haTOBE = $arrayTOBE[$i];
+            $result += CalculateHelper::calcolaImportoInvestimentoPerHA($haTOBE) * $financedQuote /100;
+        }
+        return $result;
+    }
+
     /**
      * Calcolo Costi/benefici annuali in consumo energetico della ZO
      * sommando i valori degli Cluster che gli appartengono (per HAS ASIS che hanno una lista di cluster ASIS associati)
@@ -84,8 +97,7 @@ class CalculateHelper
     public static function calcoloConsumoEnergeticoPerHaTOBE($ha){
         $cluster = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"])["clusters"];
 
-        return ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"]
-            * $cluster["average_device_power"];
+        return ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"];
     }
 
 
@@ -128,8 +140,7 @@ class CalculateHelper
             $cluster = $clusters[$i];
 
             //calcolo spesa energetica i-esimo cluster
-            $spesaEnergetica = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"]
-                * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
+            $spesaEnergetica = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
 
             //somma delle singole spese energetiche in quella generale della zona omogenea
             $spesaEnergeticaHa += $spesaEnergetica;
@@ -147,8 +158,7 @@ class CalculateHelper
     public static function calcoloSpesaEnergeticaPerHaTOBE($ha, $costo_unitario){
         $cluster = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"])["clusters"];
 
-        return  ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"]
-            * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
+        return  ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
     }
 
 
@@ -229,28 +239,6 @@ class CalculateHelper
         }
 
         return $nLampadeTot;
-    }
-
-
-    /**
-     * calcola i costi di manutenzione dell'impianto asIs restituendo un risultato per ogni HA
-     * si tratta di un costo annuale per ogni HA senza associazione
-     * @output come array
-     *
-     * @input $has(lamp_cost)
-     * @input $has(lamp_disposal)
-     * @input calcolaTotaleLampadePerHA($ha)
-     * */
-
-    public static function calcolaCostiManutenzioneAsIs($plant){
-        $hasAsIs = SaveToolController::getHasByPlantId($plant["id"])["dataAsIs"];
-        $result = [];
-        for ($i = 0; $i < count($hasAsIs); $i++){
-            $ha = $hasAsIs[$i];
-            $result[$i] = CalculateHelper::calcolaCostiManutezionePerHA($ha);
-        }
-
-        return $result;
     }
 
     public static function calcolaCostiManutezionePerHA($ha){
@@ -387,19 +375,6 @@ class CalculateHelper
         return self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
     }
 
-    public static function calcoloImportoInvestimentoPerPlant($plant, $financedQuote)
-    {
-        $has = SaveToolController::getHasByPlantId($plant["id"]);
-        //creazione array delle HAS
-        $arrayASIS = $has["dataAsIs"];
-        $result = 0;
-        for ($i = 0; $i < count($arrayASIS); $i++){
-            $haASIS = $arrayASIS[$i];
-            $result += CalculateHelper::calcolaImportoInvestimentoPerHA($haASIS) * $financedQuote /100;
-        }
-        return $result;
-    }
-
     public static function calcoloFlussiDiCassaPerHA($plant, $investment, $durationAmortization_override, $energy_unit_cost_override) {
         $has = SaveToolController::getHasByPlantId($plant["id"]);
         //creazione array delle HAS
@@ -431,7 +406,7 @@ class CalculateHelper
 
             //inizio calcolo
             //calcolo costo investimento
-            $result[$i]->setInvestmentAmount(CalculateHelper::calcolaImportoInvestimentoPerHA($haASIS) * $investment["share_municipality"] /100);
+            $result[$i]->setInvestmentAmount(CalculateHelper::calcolaImportoInvestimentoPerHA($haTOBE) * $investment["share_municipality"] /100);
 
             //Calcola costi/benefici annuali in consumo energetico
             CalculateHelper::calcoloDeltaConsumoEnergeticoPerHAS($haASIS, $haTOBE, $result);
@@ -448,9 +423,9 @@ class CalculateHelper
             ($durationAmortization_override) ? $durationAmortization = $durationAmortization_override : $durationAmortization = $investment["duration_amortization"];
             for($j = 1; $j <= $durationAmortization; $j++) {
                 //costo
-                $result_asis_maintenance_cost[$j] = CalculateHelper::calcolaCostiManutezionePerHA($haASIS) * (($j % $haASIS["maintenance_interval"] == 0) ? 1 : 0);
-                $result_tobe_lamp_cost[$j] = CalculateHelper::calcolaCostiManutezionePerHA($haTOBE) * (($j % $haTOBE["maintenance_interval"] == 0) ? 1 : 0);
-                $result_tobe_infrastructure_cost[$j] = CalculateHelper::calcolaCostoManutenzioneInfrastrutturaPerHA($haTOBE) * (($j % $haTOBE["maintenance_interval"] == 0) ? 1 : 0);
+                $result_asis_maintenance_cost[$j] = CalculateHelper::calcolaCostiManutezionePerHA($haASIS) * (($j % $haASIS["lamp_maintenance_interval"] == 0) ? 1 : 0);
+                $result_tobe_lamp_cost[$j] = CalculateHelper::calcolaCostiManutezionePerHA($haTOBE) * (($j % $haTOBE["lamp_maintenance_interval"] == 0) ? 1 : 0);
+                $result_tobe_infrastructure_cost[$j] = CalculateHelper::calcolaCostoManutenzioneInfrastrutturaPerHA($haTOBE) * (($j % $haTOBE["lamp_maintenance_interval"] == 0) ? 1 : 0);
             }
             $result[$i]->asis_maintenance_cost = array_sum($result_asis_maintenance_cost);
             $result[$i]->tobe_maintenance_cost = array_sum($result_tobe_infrastructure_cost) + array_sum($result_tobe_lamp_cost);
@@ -459,7 +434,7 @@ class CalculateHelper
             $result[$i]->cash_flow[0] = - $result[$i]->getInvestmentAmount();
             for($j = 1; $j <= $durationAmortization; $j++) {
                 //costo
-                $result[$i]->cash_flow[$j] = $result[$i]->getDeltaEnergyExpenditure()
+                $result[$i]->cash_flow[$j] = + $result[$i]->getDeltaEnergyExpenditure()
                     + $result_asis_maintenance_cost[$j] - $investment["mortgage_installment"]
                     - $investment["fee_esco"] - $result_tobe_lamp_cost[$j]
                     - $result_tobe_infrastructure_cost[$j] - $investment["management_cost"];

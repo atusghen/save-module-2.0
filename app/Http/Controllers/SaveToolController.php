@@ -81,7 +81,7 @@ class SaveToolController extends Controller
     }
 
 //127.0.0.1:8000/PayBack?plantId=1&investmentId=1&min_energy_cost=0.1&max_energy_cost=0.28
-    public function calcoloPaybackMinEMax(Request $request, $id_crypted = null){
+    public function calcoloPaybackMinEMax(Request $request, $id_crypted = null, $points = 15){
         $result = []; $result["success"] = false; $result["data"] = [];
 
 
@@ -93,14 +93,14 @@ class SaveToolController extends Controller
             $max_energy_cost = $request->max_energy_cost;
             $delta_energy = $max_energy_cost - $min_energy_cost;
 
-            for($j = 0; $j < 11; $j++){
-                $iter_energy_unit_cost = $min_energy_cost + ($delta_energy / 10) * $j;
+            for($j = 0; $j < $points + 1; $j++){
+                $iter_energy_unit_cost = $min_energy_cost + ($delta_energy / $points) * $j;
 
                 $flussiDiCassa = CalculateHelper::calcoloFlussiDiCassaPerHA($plant, $investment, null, $iter_energy_unit_cost);
 
                 $cashFlowTotale = CalculateHelper::calcoloFlussiDiCassaPerPlant($flussiDiCassa);
 
-                $result["data"][$j] = array($iter_energy_unit_cost, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment->amortization_duration));
+                $result["data"][$j] = array($iter_energy_unit_cost, CalculateHelper::calcoloPayBackTime($cashFlowTotale, $investment["duration_amortization"]));
             }
 
             $result["success"] = true;
