@@ -343,7 +343,7 @@ class CalculateHelper
         } else
         {$payback_time = 0;}
 
-        return $payback_time;
+        return ($payback_time > 0)? $payback_time : 0;
     }
 
     public static function calcoloCanoneMinimo($importoInvestimento, $investment, $feeDuration, $taxes, $financedQuote){
@@ -366,7 +366,7 @@ class CalculateHelper
         if(!$feeDuration)
             $feeDuration = $investment["project_duration"];
         if(!$financedQuote)
-            $financedQuote = $investment["share_municipality"];
+            $financedQuote = $investment["share_esco"];
 
 
         $wacc_absolute = (float)$investment["wacc"] / 100;
@@ -490,7 +490,7 @@ class CalculateHelper
         return $result;
     }
 
-    public static function calcolaContibutoIncentiviPerPlant($risultatiSingolaZO){
+    public static function calcolaContributoIncentiviPerPlant($risultatiSingolaZO){
         $result = 0;
         for($i = 0; $i<count($risultatiSingolaZO); $i++){
             $result += $risultatiSingolaZO[$i]->getIncentiveRevenue();
@@ -526,7 +526,7 @@ class CalculateHelper
         $result["total"]["investment_amount"] = self::calcolaImportoInvestimentoPerPlant($result["plants"]);
         $result["total"]["asis_maintenance_cost"] = self::calcolaCostiManutezioneASISPerPlant($result["plants"]);
         $result["total"]["tobe_maintenance_cost"] = self::calcolaCostiManutezioneTOBEPerPlant($result["plants"]);
-        $result["total"]["incentive_revenue"] = self::calcolaContibutoIncentiviPerPlant($result["plants"]);
+        $result["total"]["incentive_revenue"] = self::calcolaContributoIncentiviPerPlant($result["plants"]);
         $result["total"]["delta_energy_expenditure"] = self::calcolaDeltaSpesaEnergeticaPerPlant($result["plants"]);
         $result["total"]["delta_energy_consumption"] = self::calcolaDeltaConsumoEnergeticoPerPlant($result["plants"]);
 

@@ -330,7 +330,7 @@ class SaveCompute
         } else
         {$payback_time = 0;}
 
-        return $payback_time;
+        return ($payback_time > 0)? $payback_time : 0;
     }
 
     public static function computeFeeMin($investmentAmount, $investment, $feeDuration, $taxes, $financedQuote){
@@ -584,7 +584,19 @@ class SaveCompute
         return $data;
     }
 
-    public static function computePlantsOutput($plant, $investment){
+    public static function computePlantsOutput($plantInvestmentInput){
+        $result = [
+            "success"   => false,
+            "municipality" => [],
+            "plants" => [],
+            "total" => [],
+            "financement" => []
+        ];
+
+        $plant      = SaveCompute::getPlantById($plantInvestmentInput["plant_id"])["plant"];
+        $investment = SaveCompute::getInvestmentById($plantInvestmentInput["investment_id"])["investment"];
+
+
 
         $result["municipality"] = $plant["label_plant"];
         $result["plants"] = self::computeHaCashFLow($plant, $investment, null, null);
@@ -611,6 +623,7 @@ class SaveCompute
         //Calcola Canone Massimo
         $result["financement"]["fee_max"] = self::computeFeeMax($plant, $result["total"]["investment_amount"], $investment, null, null);
 
+        $result["success"] = true;
         return $result;
     }
 
@@ -652,7 +665,6 @@ class SaveCompute
     }
 
     public static function computePayBack($input) {
-
         $result = [
             "success"   => true,
             "data"      => []
