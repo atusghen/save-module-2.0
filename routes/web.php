@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LabController;
 use App\Http\Controllers\SaveToolController;
 use App\Http\Controllers\CalculateController;
 
@@ -18,6 +19,8 @@ use App\Http\Controllers\CalculateController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('lab', [LabController::class, 'index'])->name('lab');
 
 Route::get('flussiDiCassa', [SaveToolController::class, 'showFlussiDiCassaPerPlant'])->name('flussidicassa');
 Route::get('CalcoloImpianto', [SaveToolController::class, 'showCalcoloImpianto'])->name('calcoloimpianto');
