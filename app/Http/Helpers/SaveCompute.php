@@ -341,24 +341,32 @@ class SaveCompute
         if(!$financedQuote)
             $financedQuote = $investment["share_esco"];
 
-        $wacc_absolute = (float)$investment["wacc"] / 100;
+        $wacc_absolute = floatval($investment["wacc"] / 100);
         $investment_ESCO = $investmentAmount * ($financedQuote/100);
-        $inital_fee = ($investment_ESCO) / ((1-(1+$wacc_absolute)**(-$feeDuration)) /$wacc_absolute);
+        $inital_fee = ($investment_ESCO) / ((1-((1+$wacc_absolute)**(-$feeDuration))) /$wacc_absolute);
 
         $amortization = $investment_ESCO / $feeDuration;
-        return ($inital_fee - $amortization * $taxes / 100) / (1- $taxes / 100);
+        $result = ($inital_fee - $amortization * $taxes / 100) / (1- $taxes / 100);
+        if($result > 0)
+            return $result;
+        else
+            return 0;
     }
 
     public static function computeFeeMax($plant, $investmentAmount, $investment, $feeDuration, $financedQuote){
         if(!$feeDuration)
             $feeDuration = $investment["project_duration"];
         if(!$financedQuote)
-            $financedQuote = $investment["share_municipality"];
+            $financedQuote = $investment["share_esco"];
 
-        $wacc_absolute = (float)$investment["wacc"] / 100;
+        $wacc_absolute = floatval($investment["wacc"] / 100);
         $common_initial_investment = $investmentAmount * ($financedQuote/ 100);
-        $common_amortization = $common_initial_investment / ((1-(1+$wacc_absolute)**(-$feeDuration)) /$wacc_absolute);
-        return self::computeDeltaPlantEnergyExpenditure($plant, $investment) - ($common_amortization - ($investment["mortgage_installment"]));
+        $common_amortization = $common_initial_investment / ((1-((1+$wacc_absolute)**(-$feeDuration))) /$wacc_absolute);
+        $result = self::computeDeltaPlantEnergyExpenditure($plant, $investment) - ($common_amortization - $investment["mortgage_installment"]);
+        if($result > 0)
+            return $result;
+        else
+            return 0;
     }
 
     public static function computeHaCashFLow($plant, $investment, $durationAmortization_override, $energy_unit_cost_override) {

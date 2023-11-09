@@ -354,12 +354,16 @@ class CalculateHelper
         if(!$financedQuote)
             $financedQuote = $investment["share_esco"];
 
-        $wacc_absolute = (float)$investment["wacc"] / 100;
+        $wacc_absolute = floatval($investment["wacc"] / 100);
         $investment_ESCO = $importoInvestimento * ($financedQuote/100);
-        $canoneIniziale = ($investment_ESCO) / ((1-(1+$wacc_absolute)**(-$feeDuration)) /$wacc_absolute);
+        $canoneIniziale = ($investment_ESCO) / ((1- ((1+$wacc_absolute)**(-$feeDuration))) /$wacc_absolute);
 
         $ammortamento = $investment_ESCO / $feeDuration;
-        return ($canoneIniziale - $ammortamento * $taxes / 100) / (1- $taxes / 100);
+        $result = ($canoneIniziale - $ammortamento * $taxes / 100) / (1- $taxes / 100);
+        if($result > 0)
+            return $result;
+        else
+            return 0;
     }
 
     public static function calcoloCanoneMassimo($plant, $importoInvestimento, $investment, $feeDuration, $financedQuote){
@@ -368,11 +372,14 @@ class CalculateHelper
         if(!$financedQuote)
             $financedQuote = $investment["share_esco"];
 
-
-        $wacc_absolute = (float)$investment["wacc"] / 100;
+        $wacc_absolute = floatval($investment["wacc"] / 100);
         $investimentoIniziale_comune = $importoInvestimento * ($financedQuote/ 100);
-        $ammortamento_comune = $investimentoIniziale_comune / ((1-(1+$wacc_absolute)**(-$feeDuration)) /$wacc_absolute);
-        return self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - ($investment["mortgage_installment"]));
+        $ammortamento_comune = $investimentoIniziale_comune / ((1- ((1+$wacc_absolute)**(-$feeDuration))) /$wacc_absolute);
+        $result = self::calcoloDeltaSpesaEnergeticaPerImpianto($plant, $investment) - ($ammortamento_comune - $investment["mortgage_installment"]);
+        if($result > 0)
+            return $result;
+        else
+            return 0;
     }
 
     public static function calcoloFlussiDiCassaPerHA($plant, $investment, $durationAmortization_override, $energy_unit_cost_override) {
