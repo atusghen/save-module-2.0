@@ -254,15 +254,14 @@ class CalculateHelper
     public static function calcoloVANperImpianto($cashFlow, $wacc, $round = 3): float
     {
 
-        $wacc_absolute = (float)$wacc / 100;
+        $wacc_absolute = floatval($wacc / 100);
 
         $result = 0;
-        $totVal = count($cashFlow);
 
-        for ($i = 0; $i < $totVal; $i++) {
-            $result += $cashFlow[$i] / ((1 + $wacc_absolute)**$i);
+        for ($i = 0; $i < count($cashFlow); $i++) {
+            $result += ($cashFlow[$i] / ((1 + $wacc_absolute)**($i)));
         }
-        return round ( $result, $round);
+        return round($result, $round);
     }
 
     public static function calcoloTIRperImpianto($cashFlow, $investment_amount): ?float
