@@ -95,9 +95,15 @@ class CalculateHelper
      * */
 
     public static function calcoloConsumoEnergeticoPerHaTOBE($ha){
-        $cluster = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"])["clusters"];
 
-        return ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"];
+        $result = 0;
+        $resultQuery = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"]);
+        if ($resultQuery["success"] === true) {
+            $cluster = $resultQuery["clusters"];
+            $result =  ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"];
+        }
+        return $result;
+
     }
 
 
@@ -156,9 +162,14 @@ class CalculateHelper
      * @input $costo_unitario
      * */
     public static function calcoloSpesaEnergeticaPerHaTOBE($ha, $costo_unitario){
-        $cluster = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"])["clusters"];
 
-        return  ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
+        $result = 0;
+        $resultQuery = SaveToolController::getClustersByHaId_TOBEfeatured($ha["id"]);
+        if ($resultQuery["success"] === true) {
+            $cluster = $resultQuery["clusters"];
+            $result =   ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"] * $cluster["average_device_power"] * ((float)$costo_unitario / 1000);
+        }
+        return $result;
     }
 
 

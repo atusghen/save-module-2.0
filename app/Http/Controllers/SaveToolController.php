@@ -240,14 +240,14 @@ class SaveToolController extends Controller
 
     public static function getClustersByHaId_TOBEfeatured($ha_id){
         $result = [
-            "success" => false,
-            "clusters" => ""
+            "success"   => false,
+            "clusters"      => null
         ];
 
-        $clusters = SaveCluster::where("ha_id",$ha_id)->where("is_to_be_featured","1")->get();
+        $clusters = SaveCluster::where("ha_id",$ha_id)->where("is_to_be_featured","1")->first();
         if ($clusters) {
-            $result["clusters"] = $clusters->first();
             $result["success"] = true;
+            $result["clusters"] = $clusters;
         }
 
         return $result;

@@ -21,7 +21,7 @@ class LabController extends Controller
 {
     public function index()
     {
-        $data["output"] = LabController::testAltreModalita();
+        $data["output"] = LabController::testPilota();
         return view('lab')->with('data', $data);
     }
 
