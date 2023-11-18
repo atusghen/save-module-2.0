@@ -30,13 +30,13 @@ class CalculateHelper
     public static function calcolaImportoInvestimentoPerHA($ha){
         $clusters = SaveToolController::getClustersByHaId($ha["id"])["clusters"];
         $sommaParziale = 0;
-        for ($i = 0; $i < count($clusters); $i++) {
-            $cluster = $clusters[$i];
-            $sommaParziale += ($ha["lamp_cost"] + $ha["infrastructure_maintenance_cost"] + $ha["lamp_disposal"]) * $cluster["lamp_num"];
+        if(count($clusters) > 0){
+            for ($i = 0; $i < count($clusters); $i++) {
+                $cluster = $clusters[$i];
+                $sommaParziale += ($ha["lamp_cost"] + $ha["infrastructure_maintenance_cost"] + $ha["lamp_disposal"]) * $cluster["lamp_num"];
+            }
+            $sommaParziale += $ha["system_renovation_cost"] + $ha["prodromal_activities_cost"] + ($ha["panel_cost"] * $ha["panel_num"]);
         }
-
-        $sommaParziale += $ha["system_renovation_cost"] + $ha["prodromal_activities_cost"] + ($ha["panel_cost"] * $ha["panel_num"]);
-
         return $sommaParziale;
     }
 
@@ -70,14 +70,16 @@ class CalculateHelper
 
         $consumoEnergeticoHa = 0;
 
-        //sommatoria per ogni cluster
-        for ($i = 0; $i < count($clusters); $i++) {
-            $cluster = $clusters[$i];
+        if(count($clusters) > 0){
+            //sommatoria per ogni cluster
+            for ($i = 0; $i < count($clusters); $i++) {
+                $cluster = $clusters[$i];
 
-            $consumoEnergetico = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"]
-                * $cluster["average_device_power"];
+                $consumoEnergetico = ($cluster["hours_full_light"] + (1 - ($cluster["dimmering"] / 100)) * $cluster["hours_dimmer_light"]) * $cluster["device_num"]
+                    * $cluster["average_device_power"];
 
-            $consumoEnergeticoHa += $consumoEnergetico;
+                $consumoEnergeticoHa += $consumoEnergetico;
+            }
         }
 
         return $consumoEnergeticoHa;
@@ -530,8 +532,6 @@ class CalculateHelper
         }
         return $result;
     }
-
-
 
     public static function calcoloPilota($plant, $investment){
         $result["municipality"] = $plant["label_plant"];
