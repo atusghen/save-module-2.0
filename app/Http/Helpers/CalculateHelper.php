@@ -389,7 +389,7 @@ class CalculateHelper
         }
 
         if ($payback_time > 0 && isset($flussoDiCassaTotale[$payback_time + 1]) && (int)$flussoDiCassaTotale[$payback_time + 1] !== 0) {
-            $payback_time += (abs($flussoDiCassaTotale[$payback_time + 1]) / $flusso_cumulativo[$payback_time]);
+            $payback_time += (abs($flusso_cumulativo[$payback_time]) / $flussoDiCassaTotale[$payback_time + 1]);
         } else
         {$payback_time = 0;}
 
