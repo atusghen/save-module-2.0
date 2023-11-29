@@ -1,64 +1,30 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## SAVE TOOL Thesis Project
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/6bcb3657-f996-4a7e-8093-7608093e60ce" width="200"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/962695d5-abe1-479e-a27b-954fb2808444" width="200">
 
-## About Laravel
+Questa repository contiene il modulo SAVE integrato all'interno della piattaforma [PELL](https://www.pell.enea.it/), di proprietà di ENEA, per il supporto alla valutazione economica degli investimenti di riqualificazione.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+In particolare consente ad un utente di valutare un possibile investimento nel rifacimento dell'impianto di illuminazione pubblica tramite una serie di metriche e valutazioni che questo modulo si occupa di calcolare e fornire all'interfaccia front-end del portale.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+In questa tesi è possibile consultare un lavoro di definizione dei requisiti, applicazione di modifiche alla base di dati, sviluppo delle funzionalità e testing delle stesse.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Essa è consultabile nella directory /doc di questa repository, insieme a tutti gli artefatti utilizzati per la composizione della tesi:
 
-## Learning Laravel
+[Estensione del modulo della piattaforma ENEA PELL per la valutazione economico-finanziaria degli impianti di illuminazione pubblica](doc/Tesi ENEA SAVE greco gamba 2023.pdf)
+## Obiettivo del servizio
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Lo scenario di riferimento per il modulo applicativo è relativo ad amministratori di enti locali che, in fase di pianificazione di interventi di riqualificazione illuminotecnica di un impianto di pubblica illuminazione, procedono ad un censimento dell’infrastruttura, alla quantificazione di costi e/o benefici e successivamente ad una analisi preliminare delle diverse modalità di finanziamento per proseguire con il suddetto intervento di riqualificazione, attraverso l’uso di linee guida qualitative che mirano a supportare gli amministratori locali nella scelta tra queste diverse modalità di finanziamento, a seconda delle condizioni in cui si trova l’ente di appartenenza.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tecnologie utilizzate
 
-## Laravel Sponsors
+* PHP/Laravel 
+* MySQL/PHPMyAdmin 
+* diagrams.net
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Procedura di installazione
 
-### Premium Partners
+TODO
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Un ringraziamento alla prof.ssa Patrizia Scandurra, nonchè ai correlatori Fabio Moretti ed Edoardo Scazzocchio per averci guidato durante lo sviluppo di questa tesi
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
