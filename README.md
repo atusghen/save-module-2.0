@@ -1,6 +1,6 @@
 ## SAVE TOOL Thesis Project
 
-<img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/6bcb3657-f996-4a7e-8093-7608093e60ce" width="200"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/962695d5-abe1-479e-a27b-954fb2808444" width="200">
+<img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/962695d5-abe1-479e-a27b-954fb2808444" width="230"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <img src="https://github.com/fabiomor/save-module-2.0/assets/39970186/6bcb3657-f996-4a7e-8093-7608093e60ce" width="200">
 
 Questa repository contiene il modulo SAVE integrato all'interno della piattaforma [PELL](https://www.pell.enea.it/), di proprietà di ENEA, per il supporto alla valutazione economica degli investimenti di riqualificazione.
 
@@ -8,7 +8,7 @@ In particolare consente ad un utente di valutare un possibile investimento nel r
 
 In questa tesi è possibile consultare un lavoro di definizione dei requisiti, applicazione di modifiche alla base di dati, sviluppo delle funzionalità e testing delle stesse.
 
-Essa è consultabile nella directory /doc di questa repository, insieme a tutti gli artefatti utilizzati per la composizione della tesi:
+Essa è consultabile nella directory `/doc` di questa repository, insieme a tutti gli artefatti utilizzati per la composizione della tesi:
 
 [Estensione del modulo della piattaforma ENEA PELL per la valutazione economico-finanziaria degli impianti di illuminazione pubblica](doc/Tesi ENEA SAVE greco gamba 2023.pdf)
 ## Obiettivo del servizio
@@ -25,6 +25,11 @@ Lo scenario di riferimento per il modulo applicativo è relativo ad amministrato
 
 TODO
 
-Un ringraziamento alla prof.ssa Patrizia Scandurra, nonchè ai correlatori Fabio Moretti ed Edoardo Scazzocchio per averci guidato durante lo sviluppo di questa tesi
+## Presentazione del portale
+
+TODO
+
+
+ > Un ringraziamento alla prof.ssa Patrizia Scandurra, nonchè ai correlatori Fabio Moretti ed Edoardo Scazzocchio per averci guidato durante lo sviluppo di questa tesi
 
 
