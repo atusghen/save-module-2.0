@@ -21,9 +21,25 @@ Lo scenario di riferimento per il modulo applicativo è relativo ad amministrato
 * MySQL/PHPMyAdmin 
 * diagrams.net
 
-## Procedura di installazione
+## Procedura di installazione ed esecuzione
 
-TODO
+Come ambiente di sviluppo è stato utilizzato [WAMP server](https://www.wampserver.com/en/), che è necessario pre-installare prima di clonare questa repository. Successivamente 
+1. Si può controllare la corretta installazione di WAMP lanciando da shell il comando `php --version`
+2. Clonare nella cartella di installazione di WAMP `C:\wamp64\www` questa repository con il comando `git clone <repo>`
+3. Dare la configurazione iniziale al framework Laravel/PHP editando il file `.env` preconfigurato oppure `.env.example` di default. In particolare:
+       Bisogna creare un database vuoto con un nome a piacere (utilizzeremo `save`) accedendo a PHPMyAdmin all'indirizzo `http://localhost/phpmyadmin/`
+       Successivamente inserire nel proprio `.env` le credenziali di accesso al MySQL che se non sono state configurate sono `DB_DATABASE=save DB_USERNAME=root DB_PASSWORD= `
+4. eseguire infine un `composer install` per installare tutte le dipendenze di Laravel
+
+A questo punto è possibile eseguire l'app web con i comandi:
+
+`php artisan key:generate`
+
+`php artisan optimize`
+
+`php artisan serve`
+
+Se tutto è stato svolto correttamente, all'indirizzo http://127.0.0.1:8000/ è possibile osservare la pagina di benvenuto di Laravel 8 ed è ora possibile chiamare le API REST del modulo SAVE
 
 ## Presentazione del portale
 
