@@ -10,7 +10,7 @@ In questa tesi è possibile consultare un lavoro di definizione dei requisiti, a
 
 Essa è consultabile nella directory `/doc` di questa repository, insieme a tutti gli artefatti utilizzati per la composizione della tesi:
 
-[Estensione del modulo della piattaforma ENEA PELL per la valutazione economico-finanziaria degli impianti di illuminazione pubblica](doc/Tesi ENEA SAVE greco gamba 2023.pdf)
+[Estensione del modulo della piattaforma ENEA PELL per la valutazione economico-finanziaria degli impianti di illuminazione pubblica](https://github.com/fabiomor/save-module-2.0/blob/main/doc/Tesi%20ENEA%20SAVE%20greco%20gamba%202023.pdf)
 ## Obiettivo del servizio
 
 Lo scenario di riferimento per il modulo applicativo è relativo ad amministratori di enti locali che, in fase di pianificazione di interventi di riqualificazione illuminotecnica di un impianto di pubblica illuminazione, procedono ad un censimento dell’infrastruttura, alla quantificazione di costi e/o benefici e successivamente ad una analisi preliminare delle diverse modalità di finanziamento per proseguire con il suddetto intervento di riqualificazione, attraverso l’uso di linee guida qualitative che mirano a supportare gli amministratori locali nella scelta tra queste diverse modalità di finanziamento, a seconda delle condizioni in cui si trova l’ente di appartenenza.
