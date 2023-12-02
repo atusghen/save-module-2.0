@@ -47,20 +47,12 @@ Se tutto è stato svolto correttamente, all'indirizzo http://127.0.0.1:8000/ è 
 L'interfaccia del modulo SAVE si può considerare suddivisa in due parti: la prima parte si occupa dell'inserimento, della gestione e della visualizzazione dei dati di impianti, zone omogenee, cluster e investimenti, mentre la seconda parte si occupa di mostrare in modo chiaro e ordinato i risultati ottenuti dalle varie analisi economico finanaziarie svolte.
 L'interfaccia della visualizzazione dei risultati è divisa in sezioni distinte:
 1. La prima sezione contiene il risultato del calcolo dei flussi di cassa per ogni coppia di zone omogenee dell'impianto scelto, unito con i parametri dell'investimento scelto.
-
-![Flussi di cassa e parametri di investimento](https://github.com/fabiomor/save-module-2.0/assets/64854693/38791e32-4cf9-44ee-a34c-4f3abce153f8)
-
 2. La seconda sezione contiene i risultati dei calcoli relativi al VAN e al TIR, con la possibilità di cambiare alcuni parametri e di ricalcolare i risultati.
-
-![van e tir](https://github.com/fabiomor/save-module-2.0/assets/64854693/cbba87cf-1d2b-4507-86ce-6a8f55e61aed)
-
 3. La terza sezione contiene i risultati del calcolo del tempo di Payback dell'investimento, con la possibilità di cambiare il costo unitario di energia e controllare direttamente l'impatto delle modifiche effettuate.
-
-![payback](https://github.com/fabiomor/save-module-2.0/assets/64854693/b2509adf-5d27-483e-86cf-c8c4044b11d4)
-
 4. La quarta sezione contiene il canone minimo e massimo da corrispondere a un eventuale soggetto privato, con la possibilità di variare alcuni parametri e di visualizzare istantaneamente le modifiche ai risultati.
 
-![altro anni 1-8](https://github.com/fabiomor/save-module-2.0/assets/64854693/6b2aee72-32ee-42a7-8d25-92f4b83210b2)
+![interfaccia full](https://github.com/fabiomor/save-module-2.0/assets/64854693/d6260e9c-073f-4bb3-83df-17e594ae60ce)
+
 
 
 
