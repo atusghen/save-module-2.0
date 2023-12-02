@@ -2,14 +2,11 @@
 namespace App\Http\Helpers;
 
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\SaveToolController;
-use App\Models\ResultSingleHA;
-use Illuminate\Http\Request;
 use App\Models\DTO\SaveCluster;
 use App\Models\DTO\SaveHA;
 use App\Models\DTO\SaveInvestment;
 use App\Models\DTO\SavePlant;
+use App\Models\ResultSingleHA;
 use App\Models\SavePlantView;
 use MathPHP;
 

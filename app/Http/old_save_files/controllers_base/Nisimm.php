@@ -1,4 +1,7 @@
 <?php
+
+use App\Http\old_save_files\helpers\isimm\RecapLib;
+
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class nisimm extends MY_Controller {
@@ -38,7 +41,7 @@ class nisimm extends MY_Controller {
         $this->load->helper('url');
         $this->load->library('pdf');
         $this->load->add_package_path(APPPATH.'libraries/pChart/');
-        $this->load->library('pchart');  
+        $this->load->library('pchart');
 
     }
 
@@ -150,27 +153,27 @@ class nisimm extends MY_Controller {
         $this->data['out'] = $out;
 
         if ($out == 'download') {
-            
+
             return ($pairDetail);
         } else {
-            $this->add_init("IsimmRecap.init();");        
+            $this->add_init("IsimmRecap.init();");
             $this->fullRender('enea/isimm/valutazioni/recap');
         }
 
-        
+
     }
 
     public function impianti()
     {
         $this->add_init("IsimmImpianti.init();");
-        
+
         $this->fullRender('enea/isimm/valutazioni/impianti');
     }
 
     public function investimenti()
     {
         $this->add_init("IsimmInvestimenti.init();");
-        
+
         $this->fullRender('enea/isimm/valutazioni/investimenti');
     }
 
@@ -222,7 +225,7 @@ class nisimm extends MY_Controller {
             'r2' => $inputData['r2'],
             'r3' => $inputData['r3']
         ];
-        
+
         $this->InvestmentLib->checkUserMunicipality($inputData['municipality_name'], $this->municipalities);
 
         $sectionsPairData = $this->nSectionModel->getGenericMultipleSectionsByGuid($inputData['sections']);
@@ -233,23 +236,23 @@ class nisimm extends MY_Controller {
         return $VAN_TIR;
     }
 
-    
+
     public function download_recap(){
-        
+
         $hp_guid = $this->input->post('dl_guid');
 
         $recap              = $this->recap($hp_guid, 'download');
         $investment_params  = $recap['investment_params'];
         $sections           = [];
 
-        for ($i=0; $i < count($recap['sections']); $i++) { 
+        for ($i=0; $i < count($recap['sections']); $i++) {
             $section = $recap['sections'][$i];
             $section_asis_id = $section['asis']->getGuid();
             $section_tobe_id = $section['tobe']->getGuid();
             $section_asis_tobe = ['asis' => $section_asis_id, 'tobe' => $section_tobe_id];
             array_push($sections,$section_asis_tobe);
         }
-        
+
         $inputData = [
             'hp_guid'               => $hp_guid,
             'investment_guid'       => $investment_params->getGuid(),
@@ -269,20 +272,20 @@ class nisimm extends MY_Controller {
             'quota_finanziata'      => floatval(str_replace(",",".",$this->input->post('dl_quota_finanziata'))),
         ];
 
-       
-        
-        $paybackTimeList    = $this->calcRecapPaybacktime($inputData);        
-        $feeList            = $this->calcRecapFee($inputData);
-        $vantir             = $this->calcRecapVANTIR($inputData);            
 
-        $page = 'recap';        
+
+        $paybackTimeList    = $this->calcRecapPaybacktime($inputData);
+        $feeList            = $this->calcRecapFee($inputData);
+        $vantir             = $this->calcRecapVANTIR($inputData);
+
+        $page = 'recap';
 
         $chartDataPayBack = [
             'y_label' => 'PayBack (anni)',
             'x' => [],
             'y' => [[]]
-        ];        
-        for ($i=0; $i < count($paybackTimeList); $i++) { 
+        ];
+        for ($i=0; $i < count($paybackTimeList); $i++) {
             $x = $paybackTimeList[$i]['x'];
             $y = $paybackTimeList[$i]['y'];
             array_push($chartDataPayBack['x'],$x);
@@ -293,8 +296,8 @@ class nisimm extends MY_Controller {
             'y_label' => 'Canone Annuo',
             'x' => [],
             'y' => [[],[]]
-        ];        
-        for ($i=0; $i < count($feeList); $i++) { 
+        ];
+        for ($i=0; $i < count($feeList); $i++) {
             $x = $feeList[$i]['x'];
             $y1 = $feeList[$i]['y']['min'];
             $y2 = $feeList[$i]['y']['max'];
@@ -307,7 +310,7 @@ class nisimm extends MY_Controller {
         $chartFeeList = $this->chartRender($chartDataFeeList);
         $base_url = base_url();
 
-        
+
         $type_pell   = pathinfo($base_url.'assets/images/enea/logo_pell_mini.jpg', PATHINFO_EXTENSION);
         $type_enea   = pathinfo($base_url.'assets/images/enea/logo_enea_mini.jpg', PATHINFO_EXTENSION);
         $data_pell   = file_get_contents($base_url.'assets/images/enea/logo_pell_mini.jpg');
@@ -321,7 +324,7 @@ class nisimm extends MY_Controller {
             'enea' => $base64_enea
         ];
 
-        $data = [         
+        $data = [
            'base_url'   => $base_url,
            'input'      => $inputData,
            'recap'      => $recap,
@@ -332,66 +335,66 @@ class nisimm extends MY_Controller {
            'chartFeeList'      => $chartFeeList,
            'logo'       => $logo
         ];
-          
+
         $mode = 0;
         if ($mode === 0) {
-           $this->load->view('enea/downloadpdf/'.$page, $data, FALSE); 
+           $this->load->view('enea/downloadpdf/'.$page, $data, FALSE);
         }
         else {
-           $html = $this->load->view('enea/downloadpdf/'.$page, $data, TRUE);           
-           $this->pdf->loadHtml($html);           
-           $this->pdf->setPaper('A4', 'portrait');           
+           $html = $this->load->view('enea/downloadpdf/'.$page, $data, TRUE);
+           $this->pdf->loadHtml($html);
+           $this->pdf->setPaper('A4', 'portrait');
            $this->pdf->render();
            $ts = time();
            $this->pdf->stream("PELL_ISIMM_".date('Y_m_d_H_i_s', $ts), array("Attachment"=>1));
         }
-        
-        
+
+
      }
-  
-  
+
+
      public function chartRender($chartData){
-        
-  
+
+
         $PDA = $this->pchart->pData();
-               
+
         $PDA->addPoints($chartData['y'][0], "Y_Data1");
         if (count($chartData['y']) == 2) {
-            $PDA->addPoints($chartData['y'][1], "Y_Data2"); 
-        }        
-        $PDA->setAxisName(0,$chartData['y_label']); 
+            $PDA->addPoints($chartData['y'][1], "Y_Data2");
+        }
+        $PDA->setAxisName(0,$chartData['y_label']);
 
         $PDA->addPoints($chartData['x'],"X_Data");
         $PDA->setSerieDescription("X_Data","Costo Energia (€/KWh)");
         $PDA->setAbscissa("X_Data");
 
-        $serieSettingsA= array("R"=>12,"G"=>102,"B"=>220,"Alpha"=>100);      
+        $serieSettingsA= array("R"=>12,"G"=>102,"B"=>220,"Alpha"=>100);
         $PDA->setPalette("Y_Data1",$serieSettingsA);
 
-        if (count($chartData['y']) == 2) {            
-            $serieSettingsB = array("R"=>245,"G"=>49,"B"=>27,"Alpha"=>100);  
+        if (count($chartData['y']) == 2) {
+            $serieSettingsB = array("R"=>245,"G"=>49,"B"=>27,"Alpha"=>100);
             $PDA->setPalette("Y_Data2",$serieSettingsB);
         }
-        
 
-        $PDI = $this->pchart->pImage(700,260,$PDA); 
 
-        $PDI->setFontProperties(array("FontName"=>APPPATH.'libraries/pChart/fonts/verdana.ttf',"FontSize"=>9));        
-        $PDI->setGraphArea(60,10,640,240);        
+        $PDI = $this->pchart->pImage(700,260,$PDA);
+
+        $PDI->setFontProperties(array("FontName"=>APPPATH.'libraries/pChart/fonts/verdana.ttf',"FontSize"=>9));
+        $PDI->setGraphArea(60,10,640,240);
         $PDI->drawScale(array("GridR"=>160,"GridG"=>160,"GridB"=>160));
         $PDI->drawLineChart();
-  
+
         $currentImage   = time();
         $imgPath        =    APPPATH."libraries/pChart/tmp/".$currentImage.".png";
-        $PDI->render($imgPath);   
+        $PDI->render($imgPath);
         $type   = pathinfo($imgPath, PATHINFO_EXTENSION);
         $data   = file_get_contents($imgPath);
         $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
         unlink($imgPath);
-  
+
         return $base64;
-  
-    } 
+
+    }
 
 }
 

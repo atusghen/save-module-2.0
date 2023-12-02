@@ -4,10 +4,8 @@
 namespace App\Http\Helpers;
 
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\SaveToolController;
 use App\Models\Risultato_singolaZO;
-use Illuminate\Http\Request;
 use MathPHP;
 
 class CalculateHelper

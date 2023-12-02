@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Helpers\Utilities;
+use App\Http\Controllers\base\Controller;
+use App\Http\Helpers\CalculateHelper;
 use App\Http\Requests\ParamFormRequest;
 use App\Models\DTO\SaveCluster;
 use App\Models\DTO\SaveHA;
@@ -9,7 +11,6 @@ use App\Models\DTO\SaveInvestment;
 use App\Models\DTO\SavePlant;
 use App\Models\SaveAnalysisView;
 use Illuminate\Http\Request;
-use App\Http\Helpers\CalculateHelper;
 
 /*
  * Questa classe contiene tutti i metodi di get dal database necessari per fare i calcoli
