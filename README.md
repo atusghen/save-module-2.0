@@ -56,6 +56,6 @@ L'interfaccia della visualizzazione dei risultati è divisa in sezioni distinte:
 
 
 
- > Un ringraziamento alla prof.ssa Patrizia Scandurra, nonchè ai correlatori Fabio Moretti ed Edoardo Scazzocchio per averci guidato durante lo sviluppo di questa tesi.
+ > Un ringraziamento alla prof.ssa Patrizia Scandurra, nonchè ai correlatori Fabio Moretti ed Edoardo Scazzocchio per averci guidato durante lo sviluppo di questo progetto di tesi.
 
 
